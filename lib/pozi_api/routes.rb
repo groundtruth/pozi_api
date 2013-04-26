@@ -9,7 +9,7 @@ module PoziAPI
       v = request.request_method
       p = request.path_info
 
-      if v=="GET" && p.match(%r|#{PREFIX}/(?<database>\w+)/(?<table>\w+)$|)
+      if v=="GET" && p.match(%r|^#{PREFIX}/(?<database>\w+)/(?<table>\w+)$|)
         return Store.new($~[:database], $~[:table]).read()
       end
 
