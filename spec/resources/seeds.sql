@@ -21,27 +21,60 @@ SET search_path = public, pg_catalog;
 REVOKE ALL ON SCHEMA public FROM PUBLIC;
 GRANT ALL ON SCHEMA public TO PUBLIC;
 
--- create structure
+-- spatial
 
-CREATE TABLE test_data (
+CREATE TABLE spatial (
     id integer NOT NULL,
     the_geom geometry(Point,4326),
     name varchar
 );
 
-CREATE SEQUENCE pozi_api_test_id_seq START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE CACHE 1;
-ALTER SEQUENCE pozi_api_test_id_seq OWNED BY test_data.id;
-ALTER TABLE ONLY test_data ALTER COLUMN id SET DEFAULT nextval('pozi_api_test_id_seq'::regclass);
+CREATE SEQUENCE spatial_id_seq START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE CACHE 1;
+ALTER SEQUENCE spatial_id_seq OWNED BY spatial.id;
+ALTER TABLE ONLY spatial ALTER COLUMN id SET DEFAULT nextval('spatial_id_seq'::regclass);
 
--- load data
+INSERT INTO spatial (the_geom, name) VALUES ('0101000020E610000074C6823DB3F26140B9B19563C32B43C0', 'first');
+INSERT INTO spatial (the_geom, name) VALUES ('0101000020E610000074C6823DB3F26140B9B19563C32B43C0', 'second');
+INSERT INTO spatial (the_geom, name) VALUES ('0101000020E610000074C6823DB3F26140B9B19563C32B43C0', 'third');
+INSERT INTO spatial (the_geom, name) VALUES (NULL, 'no geometry');
 
-INSERT INTO test_data (the_geom, name) VALUES ('0101000020E610000074C6823DB3F26140B9B19563C32B43C0', 'first');
-INSERT INTO test_data (the_geom, name) VALUES ('0101000020E610000074C6823DB3F26140B9B19563C32B43C0', 'second');
-INSERT INTO test_data (the_geom, name) VALUES ('0101000020E610000074C6823DB3F26140B9B19563C32B43C0', 'third');
-INSERT INTO test_data (the_geom, name) VALUES ('0101000020E610000074C6823DB3F26140B9B19563C32B43C0', 'fourth');
-INSERT INTO test_data (the_geom, name) VALUES ('0101000020E610000074C6823DB3F26140B9B19563C32B43C0', 'fifth');
+ALTER TABLE ONLY spatial ADD CONSTRAINT pk_spatial PRIMARY KEY (id);
 
--- set constraints
+-- other SRID
 
-ALTER TABLE ONLY test_data ADD CONSTRAINT pk_pozi_api_test PRIMARY KEY (id);
+CREATE TABLE other_srid (
+    id integer NOT NULL,
+    the_geom geometry(Point,3857),
+    name varchar
+);
+
+CREATE SEQUENCE other_srid_id_seq START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE CACHE 1;
+ALTER SEQUENCE other_srid_id_seq OWNED BY other_srid.id;
+ALTER TABLE ONLY other_srid ALTER COLUMN id SET DEFAULT nextval('other_srid_id_seq'::regclass);
+
+INSERT INTO other_srid (the_geom, name) VALUES ('0101000020110F0000000000808F7C6E41000000805FA751C1', 'first');
+
+ALTER TABLE ONLY other_srid ADD CONSTRAINT pk_other_srid PRIMARY KEY (id);
+
+-- empty table
+
+CREATE TABLE empty (
+    id integer NOT NULL,
+    the_geom geometry(Point,4326),
+    name varchar
+);
+
+-- non-spatial
+
+CREATE TABLE non_spatial (
+    id integer NOT NULL,
+    name varchar
+);
+
+CREATE SEQUENCE non_spatial_id_seq START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE CACHE 1;
+ALTER SEQUENCE non_spatial_id_seq OWNED BY non_spatial.id;
+ALTER TABLE ONLY non_spatial ALTER COLUMN id SET DEFAULT nextval('non_spatial_id_seq'::regclass);
+
+INSERT INTO non_spatial (name) VALUES ('first');
+INSERT INTO non_spatial (name) VALUES ('second');
 

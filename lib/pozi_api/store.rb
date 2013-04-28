@@ -5,11 +5,11 @@ module PoziAPI
   class Store
 
     def initialize(database, table)
-      @table = table
       @database = database
-      options = { dbname: database }
-      options[:host] = ENV["POZI_API_PG_HOST"] if ENV["POZI_API_PG_HOST"]
-      options[:port] = ENV["POZI_API_PG_PORT"] if ENV["POZI_API_PG_PORT"]
+      @table = table
+      options = { dbname: @database }
+      options[:host] = ENV["POZI_API_PG_HOST"] || "localhost"
+      options[:port] = ENV["POZI_API_PG_PORT"] || "5432"
       @connection = PG.connect(options)
     end
 
@@ -28,8 +28,8 @@ module PoziAPI
       as_feature_collection(@connection.exec(
         <<-END_SQL
           SELECT
-            #{non_geometry_columns.join(", ")},
-            ST_AsGeoJSON(ST_Transform(#{geometry_column}, 4326)) AS geometry_geojson
+            #{non_geometry_columns.join(", ")}
+            #{ ", ST_AsGeoJSON(ST_Transform(#{geometry_column}, 4326)) AS geometry_geojson" if geometry_column }
           FROM #{@connection.escape_string @table}; 
         END_SQL
       ))

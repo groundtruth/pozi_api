@@ -18,13 +18,7 @@
         },
         {
             "type": "Feature",
-            "properties": { "id": "4", "name": "fourth" },
-            "geometry": { "type": "Point", "coordinates": [143.584379916592, -38.3419002991608] }
-        },
-        {
-            "type": "Feature",
-            "properties": { "id": "5", "name": "fifth" },
-            "geometry": { "type": "Point", "coordinates": [143.584379916592, -38.3419002991608] }
+            "properties": { "id": "4", "name": "no geometry" }
         }
     ]
 }
