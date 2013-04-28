@@ -15,6 +15,7 @@ module PoziAPI
 
     before :each do
       PG.stub(:connect).and_return(connection)
+      connection.stub(:escape_string)
     end
 
     describe "#initialize" do
@@ -35,7 +36,7 @@ module PoziAPI
         subject.class.new(database, table)
       end
 
-      it "should fail hard on connection errors" do
+      it "should fail hard on DB connection errors (Sinatra should handle it)" do
         PG.should_receive(:connect).and_raise(PG::Error)
         lambda { subject.class.new(database, table) }.should raise_error(PG::Error)
       end

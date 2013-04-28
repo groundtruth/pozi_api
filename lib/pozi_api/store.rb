@@ -1,4 +1,5 @@
 require "pg"
+require "json"
 
 module PoziAPI
   class Store
@@ -24,13 +25,14 @@ module PoziAPI
     end
 
     def read
-      query_sql = <<-END_SQL
-        SELECT
-          #{non_geometry_columns.join(", ")},
-          ST_AsGeoJSON(ST_Transform(#{geometry_column}, 4326)) AS geometry_geojson
-        FROM $1; 
-      END_SQL
-      as_feature_collection(@connection.exec(query_sql, [@table]))
+      as_feature_collection(@connection.exec(
+        <<-END_SQL
+          SELECT
+            #{non_geometry_columns.join(", ")},
+            ST_AsGeoJSON(ST_Transform(#{geometry_column}, 4326)) AS geometry_geojson
+          FROM #{@connection.escape_string @table}; 
+        END_SQL
+      ))
     end
 
     def update
@@ -46,7 +48,7 @@ module PoziAPI
         column_info_query = <<-END_SQL
           SELECT column_name, udt_name
           FROM information_schema.columns
-          WHERE table_catalog = '$1' AND table_name = '$2';
+          WHERE table_catalog = $1 AND table_name = $2;
         END_SQL
         @connection.exec(column_info_query, [@database, @table]).to_a
       end
