@@ -29,7 +29,7 @@ module PoziAPI
         last_response.should_not be_ok
       end
 
-      it "should return an empty feature collection if there are now rows in the DB" do
+      it "should return an empty feature collection if there are no rows in the DB" do
         get "/api/pozi_api_test/empty"
         JSON.parse(last_response.body).should == JSON.parse(File.read("#{ROOT_PATH}/spec/resources/empty.json"))
       end

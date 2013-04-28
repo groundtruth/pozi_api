@@ -24,7 +24,7 @@ module PoziAPI
     def create
     end
 
-    def read
+    def read(conditions={})
       as_feature_collection(@connection.exec(
         <<-END_SQL
           SELECT
