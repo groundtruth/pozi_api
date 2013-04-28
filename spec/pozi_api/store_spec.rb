@@ -35,8 +35,9 @@ module PoziAPI
         subject.class.new(database, table)
       end
 
-      it "should handle connection errors" do
-        pending
+      it "should fail hard on connection errors" do
+        PG.should_receive(:connect).and_raise(PG::Error)
+        lambda { subject.class.new(database, table) }.should raise_error(PG::Error)
       end
 
     end
