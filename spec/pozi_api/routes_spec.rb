@@ -47,6 +47,12 @@ module PoziAPI
             subject.route(request)
           end
 
+          it "should not pass limit if not given" do
+            request = mock(request_method: "GET", path_info: "#{Routes::PREFIX}/mydb/mytable/groupid/is/2/name/matches/mr%20ed")
+            store.should_receive(:find).with { |conditions| conditions.keys.include?(:limit).should be_false }
+            subject.route(request)
+          end
+
         end
         
       end

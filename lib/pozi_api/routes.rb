@@ -26,7 +26,7 @@ module PoziAPI
         }x)
 
         options = { :is => [], :matches => [] }
-        options[:limit] = limit.to_i if limit
+        options[:limit] = limit.to_i unless limit.empty?
         conditions.each do |condition|
           field, operator, value = condition.map { |str| URI.unescape str }
           options[operator.to_sym] << { field => value }

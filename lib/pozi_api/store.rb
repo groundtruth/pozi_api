@@ -27,13 +27,21 @@ module PoziAPI
     def read
     end
 
-    def find(conditions={})
+    def find(conditions={ :is => [], :matches => []})
+
+      # str = conditions[:is].to_a.map do |field, value|
+      #   "#{@connection.escape_string field} = #{@connection.escape_string value}"
+      # end.join(", ")
+      # puts "CONDITIONS => #{str}"
+
       as_feature_collection(@connection.exec(
         <<-END_SQL
           SELECT
             #{non_geometry_columns.join(", ")}
             #{ ", ST_AsGeoJSON(ST_Transform(#{geometry_column}, 4326)) AS geometry_geojson" if geometry_column }
-          FROM #{@connection.escape_string @table}; 
+          FROM #{@connection.escape_string @table}
+          #{ "LIMIT #{conditions[:limit]}" if conditions[:limit] }
+          ;
         END_SQL
       ))
     end

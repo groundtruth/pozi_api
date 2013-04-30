@@ -105,6 +105,29 @@ module PoziAPI
             ]
           }
         end
+
+        describe "with conditions" do
+
+          it "should include limit clauses" do
+            connection.should_receive(:exec).once
+            connection.should_receive(:exec).once.with(/LIMIT 22/)
+            subject.find({ :limit => 22 })
+          end
+
+          it "should include 'is' conditions" do
+            pending
+            connection.should_receive(:exec).once
+            connection.should_receive(:exec).with do |sql|
+              sql.should match(/groupid = 22/)
+              sql.should match(/name = 'world'/)
+            end
+            subject.find({ :is => [{ "groupid" => "22" }, { "name" => "world" }]})
+          end
+
+          it "should include 'matches' conditions"
+
+        end
+
       end
 
     end
