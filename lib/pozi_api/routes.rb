@@ -28,7 +28,8 @@ module PoziAPI
         options = { :is => [], :matches => [] }
         options[:limit] = limit.to_i unless limit.empty?
         conditions.each do |condition|
-          field, operator, value = condition.map { |str| URI.unescape str }
+          field, operator, value_string = condition.map { |str| URI.unescape str }
+          value = Integer(value_string) rescue value_string
           options[operator.to_sym] << { field => value }
         end
 
