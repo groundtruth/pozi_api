@@ -1,3 +1,4 @@
+require "uri"
 require "pozi_api/store"
 
 module PoziAPI
@@ -9,8 +10,8 @@ module PoziAPI
 
       if request.request_method == "GET" && request.path_info.match(%r{
         ^#{Regexp.escape PREFIX}
-        /(?<database>\w+)
-        /(?<table>\w+)
+        /(?<database>[^/]+)
+        /(?<table>[^/]+)
         (?<conditions_string>(/[^/]+/(is|matches)/[^/]+)*)
         (/limit/(?<limit>\d+)$)?
       }x)
@@ -25,7 +26,7 @@ module PoziAPI
         }x)
 
         options = { :is => [], :matches => [] }
-        options[:limit] = limit if limit
+        options[:limit] = limit.to_i if limit
         conditions.each do |condition|
           field, operator, value = condition.map { |str| URI.unescape str }
           options[operator.to_sym] << { field => value }
