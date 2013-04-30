@@ -67,13 +67,13 @@ module PoziAPI
       
     end
 
-    describe "#read" do
+    describe "#find" do
 
       context "no results" do
         it "should render GeoJSON" do
           connection.should_receive(:exec).any_number_of_times.and_return([])
-          read_result = Store.new(database, table).read
-          JSON.parse(read_result).should == { "type" => "FeatureCollection", "features" => [] }
+          find_result = Store.new(database, table).find
+          JSON.parse(find_result).should == { "type" => "FeatureCollection", "features" => [] }
         end
       end
 
@@ -90,7 +90,7 @@ module PoziAPI
               { "id" => 22, "name" => "big one", "geometry_geojson" => '{"type":"Point","coordinates":[145.716104000000001,-38.097603999999997]}' }
             ]
           )
-          JSON.parse(subject.read).should == {
+          JSON.parse(subject.find).should == {
             "type" => "FeatureCollection",
             "features" => [
               {

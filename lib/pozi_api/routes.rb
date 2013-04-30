@@ -32,7 +32,7 @@ module PoziAPI
           options[operator.to_sym] << { field => value }
         end
 
-        return Store.new(database, table).read(options)
+        return Store.new(database, table).find(options)
       end
 
       400 # Bad Request

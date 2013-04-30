@@ -25,25 +25,25 @@ module PoziAPI
             request = mock(request_method: "GET", path_info: "#{Routes::PREFIX}/mydb/mytable")
             result = mock("result")
             Store.should_receive(:new).with("mydb", "mytable")
-            store.should_receive(:read).and_return(result)
+            store.should_receive(:find).and_return(result)
             subject.route(request).should == result
           end
 
           it "should handle field lookup conditions" do
             request = mock(request_method: "GET", path_info: "#{Routes::PREFIX}/mydb/mytable/groupid/is/2/name/matches/mr%20ed/typeid/is/44/limit/1")
-            store.should_receive(:read).with(hash_including(is: [{ "groupid" => "2" }, { "typeid" => "44" }]))
+            store.should_receive(:find).with(hash_including(is: [{ "groupid" => "2" }, { "typeid" => "44" }]))
             subject.route(request)
           end
 
           it "should get full text search conditions" do
             request = mock(request_method: "GET", path_info: "#{Routes::PREFIX}/mydb/mytable/groupid/is/2/name/matches/mr%20ed/limit/1")
-            store.should_receive(:read).with(hash_including(matches: [{ "name" => "mr ed" }]))
+            store.should_receive(:find).with(hash_including(matches: [{ "name" => "mr ed" }]))
             subject.route(request)
           end
           
           it "should get limit conditions" do
             request = mock(request_method: "GET", path_info: "#{Routes::PREFIX}/mydb/mytable/groupid/is/2/name/matches/mr%20ed/limit/3")
-            store.should_receive(:read).with(hash_including(limit: 3))
+            store.should_receive(:find).with(hash_including(limit: 3))
             subject.route(request)
           end
 
