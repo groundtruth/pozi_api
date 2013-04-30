@@ -6,21 +6,33 @@ module PoziAPI
     PREFIX = "/api"
 
     def self.route(request)
-      v = request.request_method
-      p = request.path_info
 
-      if v=="GET" && p.match(%r|^#{PREFIX}/(?<database>\w+)/(?<table>\w+)$|)
-        return Store.new($~[:database], $~[:table]).read()
+      if request.request_method == "GET" && request.path_info.match(%r{
+        ^#{Regexp.escape PREFIX}
+        /(?<database>\w+)
+        /(?<table>\w+)
+        (?<conditions_string>(/[^/]+/(is|matches)/[^/]+)*)
+        (/limit/(?<limit>\d+)$)?
+      }x)
+
+        database = URI.unescape $~[:database].to_s
+        table = URI.unescape $~[:table].to_s
+        limit = URI.unescape $~[:limit].to_s
+        conditions = $~[:conditions_string].to_s.scan(%r{
+          /(?<field>[^/]+)
+          /(?<operator>is|matches)
+          /(?<value>[^/]+)
+        }x)
+
+        options = {}
+        options[:limit] = limit if limit
+        conditions.each do |condition|
+          field, operator, value = condition.map { |str| URI.unescape str }
+          options[operator.to_sym] = { field => value }
+        end
+
+        return Store.new(database, table).read(options)
       end
-
-      # if v=="GET" && p.match(%r|^/(?<database>\w+)/(?<table>\w+)(?<conditions>(/[\w +%]+/[\w +%]+/[\w +%]+)*)((?:/limit/)(?<limit>\d+))?$|)
-      #   conditions = {}
-      #   $~[:conditions][1..-1].to_s.split("/").each_slice(3) do |field, condition, value|
-      #     conditions[condition] ||= {}
-      #     conditions[condition][field] = value
-      #   end
-      #   return Store.new($~[:database], $~[:table]).read(conditions)
-      # end
 
       400 # Bad Request
     end
