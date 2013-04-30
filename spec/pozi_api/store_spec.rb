@@ -116,10 +116,10 @@ module PoziAPI
 
           it "should include 'is' conditions" do
             connection.should_receive(:exec).with do |sql|
-              # sql.should match(/groupid = 22/)
+              sql.should match(/groupid = 22/)
               sql.should match(/name = 'world'/)
             end
-            subject.find({ :is => [{ "groupid" => "22" }, { "name" => "world" }]})
+            subject.find({ :is => { "groupid" => 22, "name" => "world" }})
           end
 
           it "should include 'matches' conditions"
