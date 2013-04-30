@@ -15,7 +15,7 @@ module PoziAPI
 
     before :each do
       PG.stub(:connect).and_return(connection)
-      connection.stub(:escape_string)
+      connection.stub(:escape_string) { |str| str }
     end
 
     describe "#initialize" do
@@ -69,9 +69,17 @@ module PoziAPI
 
     describe "#find" do
 
+      before(:each) do
+        connection.should_receive(:exec).once.and_return([
+          { "column_name" => "id", "udt_name" => "integer" },
+          { "column_name" => "name", "udt_name" => "varchar" },
+          { "column_name" => "the_geom", "udt_name" => "geometry" }
+        ])
+      end
+
       context "no results" do
         it "should render GeoJSON" do
-          connection.should_receive(:exec).any_number_of_times.and_return([])
+          connection.should_receive(:exec).once.and_return([])
           find_result = Store.new(database, table).find
           JSON.parse(find_result).should == { "type" => "FeatureCollection", "features" => [] }
         end
@@ -79,17 +87,10 @@ module PoziAPI
 
       context "with results" do
         it "should render GeoJSON (for results with or without geometries)" do
-          connection.should_receive(:exec).and_return(
-            [
-              { "column_name" => "id", "udt_name" => "integer" },
-              { "column_name" => "name", "udt_name" => "varchar" },
-              { "column_name" => "the_geom", "udt_name" => "geometry" }
-            ],
-            [
-              { "id" => 11, "name" => "somewhere", "geometry_geojson" => nil },
-              { "id" => 22, "name" => "big one", "geometry_geojson" => '{"type":"Point","coordinates":[145.716104000000001,-38.097603999999997]}' }
-            ]
-          )
+          connection.should_receive(:exec).once.and_return([
+            { "id" => 11, "name" => "somewhere", "geometry_geojson" => nil },
+            { "id" => 22, "name" => "big one", "geometry_geojson" => '{"type":"Point","coordinates":[145.716104000000001,-38.097603999999997]}' }
+          ])
           JSON.parse(subject.find).should == {
             "type" => "FeatureCollection",
             "features" => [
@@ -109,16 +110,13 @@ module PoziAPI
         describe "with conditions" do
 
           it "should include limit clauses" do
-            connection.should_receive(:exec).once
             connection.should_receive(:exec).once.with(/LIMIT 22/)
             subject.find({ :limit => 22 })
           end
 
           it "should include 'is' conditions" do
-            pending
-            connection.should_receive(:exec).once
             connection.should_receive(:exec).with do |sql|
-              sql.should match(/groupid = 22/)
+              # sql.should match(/groupid = 22/)
               sql.should match(/name = 'world'/)
             end
             subject.find({ :is => [{ "groupid" => "22" }, { "name" => "world" }]})

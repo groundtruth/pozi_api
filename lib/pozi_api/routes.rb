@@ -25,12 +25,12 @@ module PoziAPI
           /(?<value>[^/]+)
         }x)
 
-        options = { :is => [], :matches => [] }
+        options = { :is => {}, :matches => {} }
         options[:limit] = limit.to_i unless limit.empty?
         conditions.each do |condition|
-          field, operator, value_string = condition.map { |str| URI.unescape str }
-          value = Integer(value_string) rescue value_string
-          options[operator.to_sym] << { field => value }
+          field, operator = condition[0..1].map { |str| URI.unescape str }
+          value = Integer(condition.last) rescue URI.unescape(condition.last)
+          options[operator.to_sym][field] = value
         end
 
         return Store.new(database, table).find(options)

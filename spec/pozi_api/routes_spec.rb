@@ -29,15 +29,21 @@ module PoziAPI
             subject.route(request).should == result
           end
 
-          it "should handle field lookup conditions (casting to integer where possible)" do
-            request = mock(request_method: "GET", path_info: "#{Routes::PREFIX}/mydb/mytable/groupid/is/two/name/matches/mr%20ed/typeid/is/44/limit/1")
-            store.should_receive(:find).with(hash_including(is: [{ "groupid" => "two" }, { "typeid" => 44 }]))
+          it "should handle field lookup conditions with integer values" do
+            request = mock(request_method: "GET", path_info: "#{Routes::PREFIX}/mydb/mytable/typeid/is/44")
+            store.should_receive(:find).with(hash_including(is: { "typeid" => 44 }))
+            subject.route(request)
+          end
+
+          it "should handle field lookup conditions with digit-only strings (URI encoded)" do
+            request = mock(request_method: "GET", path_info: "#{Routes::PREFIX}/mydb/mytable/typeid/is/%34%34")
+            store.should_receive(:find).with(hash_including(is: { "typeid" => "44" }))
             subject.route(request)
           end
 
           it "should get full text search conditions" do
             request = mock(request_method: "GET", path_info: "#{Routes::PREFIX}/mydb/mytable/groupid/is/2/name/matches/mr%20ed/limit/1")
-            store.should_receive(:find).with(hash_including(matches: [{ "name" => "mr ed" }]))
+            store.should_receive(:find).with(hash_including(matches: { "name" => "mr ed" }))
             subject.route(request)
           end
           
