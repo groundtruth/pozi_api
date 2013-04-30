@@ -24,11 +24,11 @@ module PoziAPI
           /(?<value>[^/]+)
         }x)
 
-        options = {}
+        options = { :is => [], :matches => [] }
         options[:limit] = limit if limit
         conditions.each do |condition|
           field, operator, value = condition.map { |str| URI.unescape str }
-          options[operator.to_sym] = { field => value }
+          options[operator.to_sym] << { field => value }
         end
 
         return Store.new(database, table).read(options)
