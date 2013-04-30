@@ -70,7 +70,7 @@ module PoziAPI
     describe "#find" do
 
       before(:each) do
-        connection.should_receive(:exec).once.and_return([
+        connection.stub(:exec).with(/column_name/, anything).and_return([
           { "column_name" => "id", "udt_name" => "integer" },
           { "column_name" => "name", "udt_name" => "varchar" },
           { "column_name" => "the_geom", "udt_name" => "geometry" }
@@ -79,7 +79,7 @@ module PoziAPI
 
       context "no results" do
         it "should render GeoJSON" do
-          connection.should_receive(:exec).once.and_return([])
+          connection.should_receive(:exec).with(/SELECT\n/).and_return([])
           find_result = Store.new(database, table).find
           JSON.parse(find_result).should == { "type" => "FeatureCollection", "features" => [] }
         end
@@ -87,7 +87,7 @@ module PoziAPI
 
       context "with results" do
         it "should render GeoJSON (for results with or without geometries)" do
-          connection.should_receive(:exec).once.and_return([
+          connection.should_receive(:exec).with(/SELECT\n/).and_return([
             { "id" => 11, "name" => "somewhere", "geometry_geojson" => nil },
             { "id" => 22, "name" => "big one", "geometry_geojson" => '{"type":"Point","coordinates":[145.716104000000001,-38.097603999999997]}' }
           ])
@@ -110,19 +110,25 @@ module PoziAPI
         describe "with conditions" do
 
           it "should include limit clauses" do
-            connection.should_receive(:exec).once.with(/LIMIT 22/)
+            connection.should_receive(:exec).with(/LIMIT 22/)
             subject.find({ :limit => 22 })
           end
 
-          it "should include 'is' conditions" do
-            connection.should_receive(:exec).with do |sql|
-              sql.should match(/groupid = 22/)
-              sql.should match(/name = 'world'/)
-            end
-            subject.find({ :is => { "groupid" => 22, "name" => "world" }})
+          it "should include 'is' conditions with integer values" do
+            # connection.should_receive(:exec).with{ |sql| sql.should match(/groupid = 22/) }
+            connection.should_receive(:exec).with(/groupid = 22/)
+            subject.find({ :is => { "groupid" => 22 }})
           end
 
-          it "should include 'matches' conditions"
+          it "should include 'is' conditions with string values" do
+            connection.should_receive(:exec).with(/name = 'world'/)
+            subject.find({ :is => { "name" => "world" }})
+          end
+
+          it "should include 'matches' conditions" do
+            connection.should_receive(:exec).with(/ts_address @@ 'Main Stree'/)
+            subject.find({ :matches => { "ts_address" => "Main Stree" }})
+          end
 
         end
 

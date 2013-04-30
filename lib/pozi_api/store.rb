@@ -31,10 +31,16 @@ module PoziAPI
       conditions[:is] ||= {}
       conditions[:matches] ||= {}
 
-      where_conditions = conditions[:is].map do |field, value|
-        value_expression = value.kind_of?(Fixnum) ? value.to_s : "'#{ @connection.escape_string value }'"
-        "#{ @connection.escape_string field } = #{ value_expression }"
-      end.join(", ")
+      where_conditions = (
+        conditions[:is].map do |field, value|
+          value_expression = value.kind_of?(Fixnum) ? value.to_s : "'#{ @connection.escape_string value }'"
+          "#{ @connection.escape_string field } = #{ value_expression }"
+        end +
+        # []
+        conditions[:matches].map do |field, value|
+          "#{ @connection.escape_string field } @@ '#{ @connection.escape_string value }'"
+        end
+      ).join(", ")
 
       as_feature_collection(@connection.exec(
         <<-END_SQL
