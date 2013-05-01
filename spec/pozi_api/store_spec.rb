@@ -53,6 +53,12 @@ module PoziAPI
         ])
       end
 
+      describe "#tsvector_columns" do
+        it "should identify any columns" do
+          pending
+        end
+      end
+
       describe "#geometry_column" do
         it "should identify the (first) geometry column" do
           subject.geometry_column.should == "the_geom"
@@ -86,6 +92,11 @@ module PoziAPI
       end
 
       context "with results" do
+
+        it "should render GeoJSON without any geometry or tsvector columns included in the properties hash" do
+          pending
+        end
+
         it "should render GeoJSON (for results with or without geometries)" do
           connection.should_receive(:exec).with(/SELECT\n/).and_return([
             { :id => 11, :name => "somewhere", :geometry_geojson => nil },
