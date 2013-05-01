@@ -1,4 +1,5 @@
 require "pg"
+require "pg_typecast"
 require "json"
 
 module PoziAPI
@@ -14,11 +15,11 @@ module PoziAPI
     end
 
     def geometry_column
-      @geometry_column = column_info.map { |r| r["column_name"] if r["udt_name"] == "geometry" }.compact.first
+      @geometry_column = column_info.map { |r| r[:column_name] if r[:udt_name] == "geometry" }.compact.first
     end
 
     def non_geometry_columns
-      @non_geometry_columns = column_info.map { |r| r["column_name"] } - [geometry_column]
+      @non_geometry_columns = column_info.map { |r| r[:column_name] } - [geometry_column]
     end
 
     def create
@@ -42,17 +43,17 @@ module PoziAPI
         end
       ).join(", ")
 
-      as_feature_collection(@connection.exec(
-        <<-END_SQL
-          SELECT
-            #{non_geometry_columns.join(", ")}
-            #{ ", ST_AsGeoJSON(ST_Transform(#{geometry_column}, 4326)) AS geometry_geojson" if geometry_column }
-          FROM #{@connection.escape_string @table}
-          #{ "WHERE #{where_conditions}" unless where_conditions.empty? }
-          #{ "LIMIT #{conditions[:limit]}" if conditions[:limit] }
-          ;
-        END_SQL
-      ))
+      sql = <<-END_SQL
+        SELECT
+          #{non_geometry_columns.join(", ")}
+          #{ ", ST_AsGeoJSON(ST_Transform(#{geometry_column}, 4326)) AS geometry_geojson" if geometry_column }
+        FROM #{@connection.escape_string @table}
+        #{ "WHERE #{where_conditions}" unless where_conditions.empty? }
+        #{ "LIMIT #{conditions[:limit]}" if conditions[:limit] }
+        ;
+      END_SQL
+
+      as_feature_collection(@connection.exec(sql).to_a)
     end
 
     def update
@@ -80,13 +81,13 @@ module PoziAPI
         "features" => results.to_a.map do |row|
           {
             "type" => "Feature",
-            "properties" => row.select { |k,v| k != "geometry_geojson" }
+            "properties" => row.select { |k,v| k != :geometry_geojson }
           }.merge(
             begin
-              if row["geometry_geojson"].to_s.empty?
+              if row[:geometry_geojson].to_s.empty?
                 {}
               else
-                { "geometry" => JSON.parse(row["geometry_geojson"]) }
+                { "geometry" => JSON.parse(row[:geometry_geojson]) }
               end
             end
           )

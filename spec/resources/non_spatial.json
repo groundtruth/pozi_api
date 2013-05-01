@@ -3,11 +3,11 @@
     "features": [
         {
             "type": "Feature",
-            "properties": { "id": "1", "name": "first" }
+            "properties": { "id": 1, "name": "first" }
         },
         {
             "type": "Feature",
-            "properties": { "id": "2", "name": "second" }
+            "properties": { "id": 2, "name": "second" }
         }
     ]
 }

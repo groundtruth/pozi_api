@@ -3,7 +3,7 @@
     "features": [
         {
             "type": "Feature",
-            "properties": { "id": "1", "name": "first" },
+            "properties": { "id": 1, "name": "first" },
             "geometry": { "type": "Point", "coordinates": [143.584379393926, -38.3418996888383] }
         }
     ]
