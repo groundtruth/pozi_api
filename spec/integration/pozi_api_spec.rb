@@ -45,7 +45,12 @@ module PoziAPI
       end
 
       describe "with conditions" do
-        it "should handle limits"
+
+        it "should handle limits" do
+          get "/api/pozi_api_test/spatial/limit/2"
+          JSON.parse(last_response.body)["features"].count.should == 2
+        end
+
         it "should handle 'is' conditions"
         it "should handle 'matches' conditions"
       end

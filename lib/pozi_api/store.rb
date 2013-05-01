@@ -14,12 +14,16 @@ module PoziAPI
       @connection = PG.connect(options)
     end
 
+    def tsvector_column
+      @tsvector_column = column_info.map { |r| r[:column_name] if r[:udt_name] == "tsvector" }.compact.first
+    end
+
     def geometry_column
       @geometry_column = column_info.map { |r| r[:column_name] if r[:udt_name] == "geometry" }.compact.first
     end
 
     def non_geometry_columns
-      @non_geometry_columns = column_info.map { |r| r[:column_name] } - [geometry_column]
+      @non_geometry_columns = column_info.map { |r| r[:column_name] } - [geometry_column, tsvector_column]
     end
 
     def create
