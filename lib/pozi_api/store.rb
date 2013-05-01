@@ -32,16 +32,8 @@ module PoziAPI
       conditions[:is] ||= {}
       conditions[:matches] ||= {}
 
-      where_conditions = (
-        conditions[:is].map do |field, value|
-          value_expression = value.kind_of?(Fixnum) ? value.to_s : "'#{ @connection.escape_string value }'"
-          "#{ @connection.escape_string field } = #{ value_expression }"
-        end +
-        # []
-        conditions[:matches].map do |field, value|
-          "#{ @connection.escape_string field } @@ '#{ @connection.escape_string value }'"
-        end
-      ).join(", ")
+      where_conditions = (["? = ?"] * conditions[:is].count + ["? @@ ?"] * conditions[:matches].count).join(", ")
+      where_substitutions = (conditions[:is].to_a + conditions[:matches].to_a).flatten
 
       sql = <<-END_SQL
         SELECT
@@ -53,7 +45,7 @@ module PoziAPI
         ;
       END_SQL
 
-      as_feature_collection(@connection.exec(sql).to_a)
+      as_feature_collection(@connection.exec(number_subs(sql), where_substitutions).to_a)
     end
 
     def update
@@ -63,6 +55,11 @@ module PoziAPI
     end
 
     private
+
+    def number_subs(sql)
+      n = 0
+      sql.gsub(/\?/) { "$#{ n += 1 }"}
+    end
 
     def column_info
       @column_fino ||= begin
