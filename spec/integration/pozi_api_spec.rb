@@ -51,7 +51,20 @@ module PoziAPI
           JSON.parse(last_response.body)["features"].count.should == 2
         end
 
-        it "should handle 'is' conditions"
+        it "should handle an 'is' condition with an integer" do
+          get "/api/pozi_api_test/spatial/id/is/3"
+          result = JSON.parse(last_response.body)
+          result["features"].count.should == 1
+          result["features"].first["properties"]["id"].should == 3
+        end
+
+        it "should handle an 'is' condition with a string" do
+          get "/api/pozi_api_test/spatial/name/is/second"
+          result = JSON.parse(last_response.body)
+          result["features"].count.should == 1
+          result["features"].first["properties"]["id"].should == 2
+        end
+
         it "should handle 'matches' conditions"
       end
 
