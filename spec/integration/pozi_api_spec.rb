@@ -65,7 +65,13 @@ module PoziAPI
           result["features"].first["properties"]["id"].should == 2
         end
 
-        it "should handle 'matches' conditions"
+        it "should handle 'matches' conditions" do
+          get "/api/pozi_api_test/spatial/search_text/matches/come%20right"
+          result = JSON.parse(last_response.body)
+          result["features"].count.should == 1
+          result["features"].first["properties"]["id"].should == 2
+        end
+
       end
 
     end

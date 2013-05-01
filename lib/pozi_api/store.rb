@@ -43,7 +43,7 @@ module PoziAPI
         end +
         # []
         conditions[:matches].map do |field, value|
-          "#{ @connection.escape_string field } @@ '#{ @connection.escape_string value }'"
+          "#{ @connection.escape_string field } @@ plainto_tsquery('#{ @connection.escape_string value }')"
         end
       ).join(", ")
 

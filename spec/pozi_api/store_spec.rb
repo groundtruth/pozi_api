@@ -137,7 +137,7 @@ module PoziAPI
           end
 
           it "should include 'matches' conditions" do
-            connection.should_receive(:exec).with(/ts_address @@ 'Main Stree'/)
+            connection.should_receive(:exec).with(/ts_address @@ plainto_tsquery\('Main Stree'\)/)
             subject.find({ :matches => { "ts_address" => "Main Stree" }})
           end
 
