@@ -43,6 +43,13 @@ module PoziAPI
         get "/api/pozi_api_test/other_srid"
         JSON.parse(last_response.body).should == JSON.parse(File.read("#{ROOT_PATH}/spec/resources/other_srid.json"))
       end
+
+      describe "with conditions" do
+        it "should handle limits"
+        it "should handle 'is' conditions"
+        it "should handle 'matches' conditions"
+      end
+
     end
 
   end
