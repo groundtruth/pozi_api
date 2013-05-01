@@ -47,9 +47,9 @@ module PoziAPI
 
       before :each do
         connection.stub(:exec).and_return([
-          { "column_name" => "id", "udt_name" => "integer" },
-          { "column_name" => "name", "udt_name" => "varchar" },
-          { "column_name" => "the_geom", "udt_name" => "geometry" }
+          { :column_name => "id", :udt_name => "integer" },
+          { :column_name => "name", :udt_name => "varchar" },
+          { :column_name => "the_geom", :udt_name => "geometry" }
         ])
       end
 
@@ -71,9 +71,9 @@ module PoziAPI
 
       before(:each) do
         connection.stub(:exec).with(/column_name/, anything).and_return([
-          { "column_name" => "id", "udt_name" => "integer" },
-          { "column_name" => "name", "udt_name" => "varchar" },
-          { "column_name" => "the_geom", "udt_name" => "geometry" }
+          { :column_name => "id", :udt_name => "integer" },
+          { :column_name => "name", :udt_name => "varchar" },
+          { :column_name => "the_geom", :udt_name => "geometry" }
         ])
       end
 
@@ -88,8 +88,8 @@ module PoziAPI
       context "with results" do
         it "should render GeoJSON (for results with or without geometries)" do
           connection.should_receive(:exec).with(/SELECT\n/).and_return([
-            { "id" => 11, "name" => "somewhere", "geometry_geojson" => nil },
-            { "id" => 22, "name" => "big one", "geometry_geojson" => '{"type":"Point","coordinates":[145.716104000000001,-38.097603999999997]}' }
+            { :id => 11, :name => "somewhere", :geometry_geojson => nil },
+            { :id => 22, :name => "big one", :geometry_geojson => '{"type":"Point","coordinates":[145.716104000000001,-38.097603999999997]}' }
           ])
           JSON.parse(subject.find).should == {
             "type" => "FeatureCollection",
