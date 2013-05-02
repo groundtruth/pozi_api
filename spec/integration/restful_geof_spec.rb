@@ -9,7 +9,7 @@ module RestfulGeof
     let(:app) { App }
 
     before :all do
-      %x{psql -f #{ROOT_PATH}/spec/resources/seeds.sql}
+      %x{psql -f #{ROOT_PATH}/spec/resources/seeds.sql -U #{ENV["RESTFUL_GEOF_PG_USERNAME"] || ENV["USER"]}}
     end
 
     describe "reading" do

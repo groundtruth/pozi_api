@@ -1,0 +1,8 @@
+langauge: ruby
+rvm:
+  - 1.9.3
+script: bundle exec rake travis
+env:
+  - RESTFUL_GEOF_PG_HOST: 127.0.0.1
+  - RESTFUL_GEOF_PG_USERNAME: postgres
+

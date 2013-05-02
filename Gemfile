@@ -5,6 +5,7 @@ gem "pg"
 gem "pg_typecast"
 
 group :test do
+  gem "rake"
   gem "rspec"
   gem "rack-test"
   gem "ZenTest"
