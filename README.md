@@ -2,6 +2,8 @@
 
 Talk to PostGIS in GeoJSON over HTTP.
 
+[![Build Status](https://travis-ci.org/groundtruth/restful_geof.png?branch=master)](https://travis-ci.org/groundtruth/restful%5Fgeof)
+
 ## Setup
 
 
@@ -20,6 +22,7 @@ Talk to PostGIS in GeoJSON over HTTP.
 * Delete existing features.
 * Return results in a JSONP wrapper.
 * CORS support.
+* Add [Code Climate](https://codeclimate.com) metrics.
 
 ## Limitations
 
