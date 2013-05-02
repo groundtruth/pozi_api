@@ -12,6 +12,10 @@ module RestfulGeof
       %x{psql -f #{ROOT_PATH}/spec/resources/seeds.sql -U #{ENV["RESTFUL_GEOF_PG_USERNAME"] || ENV["USER"]}}
     end
 
+    def around(number, precision=0.0000001)
+      (number - precision)..(number + precision)
+    end
+
     describe "reading" do
 
       it "should have HTTP success code when called correctly" do
@@ -26,15 +30,15 @@ module RestfulGeof
           "features" => [
             {
               "type" => "Feature", "properties" => { "id" => 1, "name" => "first" },
-              "geometry" => { "type" => "Point", "coordinates" => [143.584379916592, -38.3419002991608] }
+              "geometry" => { "type" => "Point", "coordinates" => [around(143.584379916592), around(-38.3419002991608)] }
             },
             {
               "type" => "Feature", "properties" => { "id" => 2, "name" => "second" },
-              "geometry" => { "type" => "Point", "coordinates" => [143.584379916592, -38.3419002991608] }
+              "geometry" => { "type" => "Point", "coordinates" => [around(143.584379916592), around(-38.3419002991608)] }
             },
             {
               "type" => "Feature", "properties" => { "id" => 3, "name" => "third" },
-              "geometry" => { "type" => "Point", "coordinates" => [143.584379916592, -38.3419002991608] }
+              "geometry" => { "type" => "Point", "coordinates" => [around(143.584379916592), around(-38.3419002991608)] }
             },
             {
               "type" => "Feature", "properties" => { "id" => 4, "name" => "no geometry" }
@@ -71,7 +75,7 @@ module RestfulGeof
           "features" => [
               {
                   "type" => "Feature", "properties" => { "id" => 1, "name" => "first" },
-                  "geometry" => { "type" => "Point", "coordinates" => [143.584379393926, -38.3418996888383] }
+                  "geometry" => { "type" => "Point", "coordinates" => [around(143.584379393926), around(-38.3418996888383)] }
               }
           ]
         })
