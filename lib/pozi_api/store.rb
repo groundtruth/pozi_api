@@ -14,16 +14,16 @@ module PoziAPI
       @connection = PG.connect(options)
     end
 
-    def tsvector_column
-      @tsvector_column = column_info.map { |r| r[:column_name] if r[:udt_name] == "tsvector" }.compact.first
-    end
-
     def geometry_column
       @geometry_column = column_info.map { |r| r[:column_name] if r[:udt_name] == "geometry" }.compact.first
     end
 
-    def non_geometry_columns
-      @non_geometry_columns = column_info.map { |r| r[:column_name] } - [geometry_column, tsvector_column]
+    def tsvector_columns
+      @tsvector_column = column_info.map { |r| r[:column_name] if r[:udt_name] == "tsvector" }.compact
+    end
+
+    def normal_columns
+      @normal_columns = column_info.map { |r| r[:column_name] } - ([geometry_column] + tsvector_columns)
     end
 
     def create
@@ -49,7 +49,7 @@ module PoziAPI
 
       sql = <<-END_SQL
         SELECT
-          #{non_geometry_columns.join(", ")}
+          #{normal_columns.join(", ")}
           #{ ", ST_AsGeoJSON(ST_Transform(#{geometry_column}, 4326)) AS geometry_geojson" if geometry_column }
         FROM #{@connection.escape_string @table}
         #{ "WHERE #{where_conditions}" unless where_conditions.empty? }

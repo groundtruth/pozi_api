@@ -49,13 +49,15 @@ module PoziAPI
         connection.stub(:exec).and_return([
           { :column_name => "id", :udt_name => "integer" },
           { :column_name => "name", :udt_name => "varchar" },
-          { :column_name => "the_geom", :udt_name => "geometry" }
+          { :column_name => "the_geom", :udt_name => "geometry" },
+          { :column_name => "search_text_one", :udt_name => "tsvector" },
+          { :column_name => "search_text_two", :udt_name => "tsvector" }
         ])
       end
 
       describe "#tsvector_columns" do
         it "should identify any columns" do
-          pending
+          subject.tsvector_columns.should == ["search_text_one", "search_text_two"]
         end
       end
 
@@ -65,9 +67,9 @@ module PoziAPI
         end
       end
 
-      describe "#non_geometry_columns" do
-        it "should identify the non-geometry columns" do
-          subject.non_geometry_columns.should == ["id", "name"]
+      describe "#normal_columns" do
+        it "should identify normal columns for shoing in properties part of GeoJSON" do
+          subject.normal_columns.should == ["id", "name"]
         end
       end
       
@@ -92,10 +94,6 @@ module PoziAPI
       end
 
       context "with results" do
-
-        it "should render GeoJSON without any geometry or tsvector columns included in the properties hash" do
-          pending
-        end
 
         it "should render GeoJSON (for results with or without geometries)" do
           connection.should_receive(:exec).with(/SELECT\n/).and_return([
