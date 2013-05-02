@@ -1,5 +1,5 @@
 require "rack/test"
 require "rspec"
 
-require "pozi_api/root_path"
+require "restful_geof/root_path"
 

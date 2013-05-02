@@ -1,9 +1,9 @@
 require "spec_helper"
 require "json"
 
-require "pozi_api/app"
+require "restful_geof/app"
 
-module PoziAPI
+module RestfulGeof
   describe "Pozi API integration" do
     include Rack::Test::Methods
     let(:app) { App }
@@ -15,58 +15,58 @@ module PoziAPI
     describe "reading" do
 
       it "should have HTTP success code when called correctly" do
-        get "/api/pozi_api_test/spatial"
+        get "/api/restful_geof_test/spatial"
         last_response.should be_ok
       end
 
       it "should return a GeoJSON feature collection of all data" do
-        get "/api/pozi_api_test/spatial"
+        get "/api/restful_geof_test/spatial"
         JSON.parse(last_response.body).should == JSON.parse(File.read("#{ROOT_PATH}/spec/resources/spatial.json"))
       end
 
       it "should return a HTTP error code if there is a database error" do
-        get "/api/pozi_api_test/bad_table_name"
+        get "/api/restful_geof_test/bad_table_name"
         last_response.should_not be_ok
       end
 
       it "should return an empty feature collection if there are no rows in the DB" do
-        get "/api/pozi_api_test/empty"
+        get "/api/restful_geof_test/empty"
         JSON.parse(last_response.body).should == JSON.parse(File.read("#{ROOT_PATH}/spec/resources/empty.json"))
       end
 
       it "should handle non-spatial tables" do
-        get "/api/pozi_api_test/non_spatial"
+        get "/api/restful_geof_test/non_spatial"
         JSON.parse(last_response.body).should == JSON.parse(File.read("#{ROOT_PATH}/spec/resources/non_spatial.json"))
       end
 
       it "should convert to EPSG 4326" do
-        get "/api/pozi_api_test/other_srid"
+        get "/api/restful_geof_test/other_srid"
         JSON.parse(last_response.body).should == JSON.parse(File.read("#{ROOT_PATH}/spec/resources/other_srid.json"))
       end
 
       describe "with conditions" do
 
         it "should handle limits" do
-          get "/api/pozi_api_test/spatial/limit/2"
+          get "/api/restful_geof_test/spatial/limit/2"
           JSON.parse(last_response.body)["features"].count.should == 2
         end
 
         it "should handle an 'is' condition with an integer" do
-          get "/api/pozi_api_test/spatial/id/is/3"
+          get "/api/restful_geof_test/spatial/id/is/3"
           result = JSON.parse(last_response.body)
           result["features"].count.should == 1
           result["features"].first["properties"]["id"].should == 3
         end
 
         it "should handle an 'is' condition with a string" do
-          get "/api/pozi_api_test/spatial/name/is/second"
+          get "/api/restful_geof_test/spatial/name/is/second"
           result = JSON.parse(last_response.body)
           result["features"].count.should == 1
           result["features"].first["properties"]["id"].should == 2
         end
 
         it "should handle 'matches' conditions" do
-          get "/api/pozi_api_test/spatial/search_text/matches/come%20right"
+          get "/api/restful_geof_test/spatial/search_text/matches/come%20right"
           result = JSON.parse(last_response.body)
           result["features"].count.should == 1
           result["features"].first["properties"]["id"].should == 2

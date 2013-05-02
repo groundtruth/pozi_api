@@ -1,5 +1,0 @@
-#!/usr/bin/env ruby
-
-require_relative "../lib/pozi_api"
-PoziAPI::App.run!
-

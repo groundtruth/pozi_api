@@ -1,8 +1,8 @@
 require "spec_helper"
-require "pozi_api/store"
+require "restful_geof/store"
 require "json"
 
-module PoziAPI
+module RestfulGeof
   describe Store do
 
     let(:connection) { mock("connection") }
@@ -25,8 +25,8 @@ module PoziAPI
       end
 
       it "should connect to the Postgres instance specified by the env vars" do
-        ENV.stub(:[]).with("POZI_API_PG_HOST").and_return(pg_host)
-        ENV.stub(:[]).with("POZI_API_PG_PORT").and_return(pg_port)
+        ENV.stub(:[]).with("RESTFUL_GEOF_PG_HOST").and_return(pg_host)
+        ENV.stub(:[]).with("RESTFUL_GEOF_PG_PORT").and_return(pg_port)
         PG.should_receive(:connect).with(hash_including(host: pg_host, port: pg_port))
         subject.class.new(database, table)
       end

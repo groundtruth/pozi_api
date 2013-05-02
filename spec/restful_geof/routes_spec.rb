@@ -1,7 +1,7 @@
 require "spec_helper"
-require "pozi_api/routes"
+require "restful_geof/routes"
 
-module PoziAPI
+module RestfulGeof
   describe Routes do
     describe ".route" do
 

@@ -1,7 +1,7 @@
 require "sinatra/base"
-require "pozi_api/routes"
+require "restful_geof/routes"
 
-module PoziAPI
+module RestfulGeof
   class App < Sinatra::Base
     post(//) { Routes.route(request) }
     get(//) { Routes.route(request) }

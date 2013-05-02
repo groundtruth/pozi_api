@@ -2,15 +2,15 @@ require "pg"
 require "pg_typecast"
 require "json"
 
-module PoziAPI
+module RestfulGeof
   class Store
 
     def initialize(database, table)
       @database = database
       @table = table
       options = { dbname: @database }
-      options[:host] = ENV["POZI_API_PG_HOST"] || "localhost"
-      options[:port] = ENV["POZI_API_PG_PORT"] || "5432"
+      options[:host] = ENV["RESTFUL_GEOF_PG_HOST"] || "localhost"
+      options[:port] = ENV["RESTFUL_GEOF_PG_PORT"] || "5432"
       @connection = PG.connect(options)
     end
 

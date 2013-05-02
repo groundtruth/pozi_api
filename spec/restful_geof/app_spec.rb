@@ -1,7 +1,7 @@
 require "spec_helper"
-require "pozi_api/app"
+require "restful_geof/app"
 
-module PoziAPI
+module RestfulGeof
   describe App do
     include Rack::Test::Methods
     let(:app) { App }

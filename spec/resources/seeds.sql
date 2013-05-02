@@ -8,12 +8,12 @@ SET client_min_messages = warning;
 
 -- create database
 
-DROP DATABASE IF EXISTS pozi_api_test;
-CREATE DATABASE pozi_api_test WITH TEMPLATE = template0 ENCODING = 'UTF8' LC_COLLATE = 'C' LC_CTYPE = 'C';
+DROP DATABASE IF EXISTS restful_geof_test;
+CREATE DATABASE restful_geof_test WITH TEMPLATE = template0 ENCODING = 'UTF8' LC_COLLATE = 'C' LC_CTYPE = 'C';
 
 -- spatially enable, etc.
 
-\connect pozi_api_test
+\connect restful_geof_test
 
 CREATE EXTENSION IF NOT EXISTS postgis WITH SCHEMA public;
 COMMENT ON EXTENSION postgis IS 'PostGIS geometry, geography, and raster spatial types and functions';

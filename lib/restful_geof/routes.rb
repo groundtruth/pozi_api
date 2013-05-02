@@ -1,7 +1,7 @@
 require "uri"
-require "pozi_api/store"
+require "restful_geof/store"
 
-module PoziAPI
+module RestfulGeof
   module Routes
 
     PREFIX = "/api"
