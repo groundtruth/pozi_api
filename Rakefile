@@ -4,6 +4,6 @@ task :travis do
   ENV["RESTFUL_GEOF_PG_HOST"] = "127.0.0.1"
   ENV["RESTFUL_GEOF_PG_USERNAME"] = "postgres"
 
-  system "rspec spec"
+  exec "rspec spec"
 end
 
