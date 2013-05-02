@@ -11,6 +11,8 @@ module RestfulGeof
       options = { dbname: @database }
       options[:host] = ENV["RESTFUL_GEOF_PG_HOST"] || "localhost"
       options[:port] = ENV["RESTFUL_GEOF_PG_PORT"] || "5432"
+      options[:user] = ENV["RESTFUL_GEOF_PG_USERNAME"] if ENV["RESTFUL_GEOF_PG_USERNAME"]
+      options[:password] = ENV["RESTFUL_GEOF_PG_PASSWORD"] if ENV["RESTFUL_GEOF_PG_PASSWORD"]
       @connection = PG.connect(options)
     end
 

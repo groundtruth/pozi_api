@@ -22,12 +22,28 @@ module RestfulGeof
 
       before :each do
         connection.stub(:exec)
+        ENV.stub(:[])
       end
 
       it "should connect to the Postgres instance specified by the env vars" do
         ENV.stub(:[]).with("RESTFUL_GEOF_PG_HOST").and_return(pg_host)
         ENV.stub(:[]).with("RESTFUL_GEOF_PG_PORT").and_return(pg_port)
         PG.should_receive(:connect).with(hash_including(host: pg_host, port: pg_port))
+        subject.class.new(database, table)
+      end
+
+      it "should connect without DB username/password if not given by environment variables" do
+        PG.should_receive(:connect).with do |options|
+          options.keys.include?(:user).should be_false
+          options.keys.include?(:password).should be_false
+        end
+        subject.class.new(database, table)
+      end
+
+      it "should connect using DB credentials from environment variables if given" do
+        ENV.stub(:[]).with("RESTFUL_GEOF_PG_USERNAME").and_return("user")
+        ENV.stub(:[]).with("RESTFUL_GEOF_PG_PASSWORD").and_return("pass")
+        PG.should_receive(:connect).with(hash_including(user: "user", password: "pass"))
         subject.class.new(database, table)
       end
 
