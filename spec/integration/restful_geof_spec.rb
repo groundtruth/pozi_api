@@ -4,7 +4,7 @@ require "json_expressions/rspec"
 require "restful_geof/app"
 
 module RestfulGeof
-  describe "Pozi API integration" do
+  describe "Integration testing against PostGIS" do
     include Rack::Test::Methods
     let(:app) { App }
 
