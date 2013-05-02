@@ -8,6 +8,7 @@ group :test do
   gem "rake"
   gem "rspec"
   gem "rack-test"
+  gem "json_expressions"
   gem "ZenTest"
 end
 
