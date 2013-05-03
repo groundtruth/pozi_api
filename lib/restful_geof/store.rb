@@ -45,7 +45,15 @@ module RestfulGeof
         end +
         # []
         conditions[:matches].map do |field, value|
-          "#{ @connection.escape_string field } @@ plainto_tsquery('#{ @connection.escape_string value }')"
+          safe_value = @connection.escape_string value
+          <<-END_CONDITION
+            #{ @connection.escape_string field } @@
+            CASE
+              WHEN char_length(plainto_tsquery('#{ safe_value }')::varchar) > 0
+              THEN to_tsquery(plainto_tsquery('#{ safe_value }')::varchar || ':*')
+              ELSE plainto_tsquery('#{ safe_value }')
+            END
+          END_CONDITION
         end
       ).join(", ")
 

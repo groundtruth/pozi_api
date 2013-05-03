@@ -115,6 +115,14 @@ module RestfulGeof
           })
         end
 
+        it "should have 'matches' conditions match when the last part is a prefix" do
+          get "/api/restful_geof_test/spatial/search_text/matches/first%20seco"
+          last_response.body.should match_json_expression({
+            "type" => "FeatureCollection",
+            "features" => [{ "properties" => { "id" => 2 }.ignore_extra_keys!  }.ignore_extra_keys!]
+          })
+        end
+
       end
 
     end
