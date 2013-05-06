@@ -123,6 +123,14 @@ module RestfulGeof
           })
         end
 
+        it "should handle multple conditions, of different types" do
+          get "/api/restful_geof_test/spatial/id/is/2/search_text/matches/seco"
+          last_response.body.should match_json_expression({
+            "type" => "FeatureCollection",
+            "features" => [{ "properties" => { "id" => 2 }.ignore_extra_keys!  }.ignore_extra_keys!]
+          })
+        end
+
       end
 
     end

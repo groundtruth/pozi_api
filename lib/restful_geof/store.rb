@@ -43,7 +43,6 @@ module RestfulGeof
           value_expression = value.kind_of?(Fixnum) ? value.to_s : "'#{ @connection.escape_string value }'"
           "#{ @connection.escape_string field } = #{ value_expression }"
         end +
-        # []
         conditions[:matches].map do |field, value|
           safe_value = @connection.escape_string value
           <<-END_CONDITION
@@ -55,7 +54,7 @@ module RestfulGeof
             END
           END_CONDITION
         end
-      ).join(", ")
+      ).join(" AND ")
 
       sql = <<-END_SQL
         SELECT
