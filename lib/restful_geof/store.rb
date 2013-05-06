@@ -40,7 +40,12 @@ module RestfulGeof
 
       where_conditions = (
         conditions[:is].map do |field, value|
-          value_expression = value.kind_of?(Fixnum) ? value.to_s : "'#{ @connection.escape_string value }'"
+          col_type = column_info.select { |r| r[:column_name] == field }.first[:udt_name]
+          if %w{integer int smallint bigint int2 int4 int8}.include?(col_type)
+            value_expression = Integer(value).to_s
+          else
+            value_expression = "'#{ @connection.escape_string value }'"
+          end
           "#{ @connection.escape_string field } = #{ value_expression }"
         end +
         conditions[:matches].map do |field, value|

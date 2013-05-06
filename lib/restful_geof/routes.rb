@@ -28,8 +28,7 @@ module RestfulGeof
         options = { :is => {}, :matches => {} }
         options[:limit] = limit.to_i unless limit.empty?
         conditions.each do |condition|
-          field, operator = condition[0..1].map { |str| URI.unescape str }
-          value = Integer(condition.last) rescue URI.unescape(condition.last)
+          field, operator, value = condition.map { |str| URI.unescape str }
           options[operator.to_sym][field] = value
         end
 

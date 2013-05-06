@@ -29,14 +29,8 @@ module RestfulGeof
             subject.route(request).should == result
           end
 
-          it "should handle field lookup conditions with integer values" do
+          it "should handle field lookup conditions (as strings)" do
             request = mock(request_method: "GET", path_info: "#{Routes::PREFIX}/mydb/mytable/typeid/is/44")
-            store.should_receive(:find).with(hash_including(is: { "typeid" => 44 }))
-            subject.route(request)
-          end
-
-          it "should handle field lookup conditions with digit-only strings (URI encoded)" do
-            request = mock(request_method: "GET", path_info: "#{Routes::PREFIX}/mydb/mytable/typeid/is/%34%34")
             store.should_receive(:find).with(hash_including(is: { "typeid" => "44" }))
             subject.route(request)
           end

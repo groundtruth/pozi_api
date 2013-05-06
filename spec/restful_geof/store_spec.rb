@@ -96,6 +96,7 @@ module RestfulGeof
       before(:each) do
         connection.stub(:exec).with(/column_name/, anything).and_return([
           { :column_name => "id", :udt_name => "integer" },
+          { :column_name => "groupid", :udt_name => "int4" },
           { :column_name => "name", :udt_name => "varchar" },
           { :column_name => "the_geom", :udt_name => "geometry" }
         ])
@@ -142,7 +143,7 @@ module RestfulGeof
           it "should include 'is' conditions with integer values" do
             # connection.should_receive(:exec).with{ |sql| sql.should match(/groupid = 22/) }
             connection.should_receive(:exec).with(/groupid = 22/)
-            subject.find({ :is => { "groupid" => 22 }})
+            subject.find({ :is => { "groupid" => "22" }})
           end
 
           it "should include 'is' conditions with string values" do
