@@ -12,3 +12,7 @@ group :test do
   gem "ZenTest"
 end
 
+group :production do
+  gem "unicorn"
+end
+
