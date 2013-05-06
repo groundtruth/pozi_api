@@ -41,7 +41,11 @@ module RestfulGeof
               "geometry" => { "type" => "Point", "coordinates" => [around(143.584379916592), around(-38.3419002991608)] }
             },
             {
-              "type" => "Feature", "properties" => { "id" => 4, "name" => "no geometry" }
+              "type" => "Feature", "properties" => { "id" => 4, "name" => "123" },
+              "geometry" => { "type" => "Point", "coordinates" => [around(143.584379916592), around(-38.3419002991608)] }
+            },
+            {
+              "type" => "Feature", "properties" => { "id" => 5, "name" => "no geometry" }
             }
           ]
         })
@@ -104,6 +108,14 @@ module RestfulGeof
           last_response.body.should match_json_expression({
             "type" => "FeatureCollection",
             "features" => [{ "properties" => { "id" => 2 }.ignore_extra_keys!  }.ignore_extra_keys!]
+          })
+        end
+
+        it "should handle an 'is' condition with a string of only digits" do
+          get "/api/restful_geof_test/spatial/name/is/123"
+          last_response.body.should match_json_expression({
+            "type" => "FeatureCollection",
+            "features" => [{ "properties" => { "id" => 4 }.ignore_extra_keys!  }.ignore_extra_keys!]
           })
         end
 
