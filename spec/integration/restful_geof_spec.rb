@@ -12,7 +12,7 @@ module RestfulGeof
       %x{psql -f #{ROOT_PATH}/spec/resources/seeds.sql -U #{ENV["RESTFUL_GEOF_PG_USERNAME"] || ENV["USER"]}}
     end
 
-    def around(number, precision=0.0000001)
+    def around(number, precision=0.01)
       (number - precision)..(number + precision)
     end
 
@@ -30,19 +30,19 @@ module RestfulGeof
           "features" => [
             {
               "type" => "Feature", "properties" => { "id" => 1, "name" => "first" },
-              "geometry" => { "type" => "Point", "coordinates" => [around(143.584379916592), around(-38.3419002991608)] }
+              "geometry" => { "type" => "Point", "coordinates" => [around(15983740.058183), around(-4627838.0866235)] }
             },
             {
               "type" => "Feature", "properties" => { "id" => 2, "name" => "second" },
-              "geometry" => { "type" => "Point", "coordinates" => [around(143.584379916592), around(-38.3419002991608)] }
+              "geometry" => { "type" => "Point", "coordinates" => [around(15983740.058183), around(-4627838.0866235)] }
             },
             {
               "type" => "Feature", "properties" => { "id" => 3, "name" => "third" },
-              "geometry" => { "type" => "Point", "coordinates" => [around(143.584379916592), around(-38.3419002991608)] }
+              "geometry" => { "type" => "Point", "coordinates" => [around(15983740.058183), around(-4627838.0866235)] }
             },
             {
               "type" => "Feature", "properties" => { "id" => 4, "name" => "123" },
-              "geometry" => { "type" => "Point", "coordinates" => [around(143.584379916592), around(-38.3419002991608)] }
+              "geometry" => { "type" => "Point", "coordinates" => [around(15983740.058183), around(-4627838.0866235)] }
             },
             {
               "type" => "Feature", "properties" => { "id" => 5, "name" => "no geometry" }
@@ -72,14 +72,14 @@ module RestfulGeof
         })
       end
 
-      it "should convert to EPSG 4326" do
+      it "should convert to EPSG 3857" do
         get "/api/restful_geof_test/other_srid"
         last_response.body.should match_json_expression({
           "type" => "FeatureCollection",
           "features" => [
               {
                   "type" => "Feature", "properties" => { "id" => 1, "name" => "first" },
-                  "geometry" => { "type" => "Point", "coordinates" => [around(143.584379393926), around(-38.3418996888383)] }
+                  "geometry" => { "type" => "Point", "coordinates" => [around(15983740), around(-4627838)] }
               }
           ]
         })

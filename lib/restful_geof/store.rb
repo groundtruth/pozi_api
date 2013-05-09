@@ -64,7 +64,7 @@ module RestfulGeof
       sql = <<-END_SQL
         SELECT
           #{normal_columns.join(", ")}
-          #{ ", ST_AsGeoJSON(ST_Transform(#{geometry_column}, 4326)) AS geometry_geojson" if geometry_column }
+          #{ ", ST_AsGeoJSON(ST_Transform(#{geometry_column}, 3857)) AS geometry_geojson" if geometry_column }
         FROM #{@connection.escape_string @table}
         #{ "WHERE #{where_conditions}" unless where_conditions.empty? }
         #{ "LIMIT #{conditions[:limit]}" if conditions[:limit] }
@@ -83,7 +83,7 @@ module RestfulGeof
     private
 
     def column_info
-      @column_fino ||= begin
+      @column_info ||= begin
         column_info_query = <<-END_SQL
           SELECT column_name, udt_name
           FROM information_schema.columns
