@@ -27,8 +27,9 @@ Get the code and run the full test suite as follows:
     bundle install
     bundle exec rspec spec
 
-The integration tests assume there is a local database that can be accessed
-as the current user, without a password, and that `psql` is on the path.
+The integration tests assume there is a local database with PostGIS that can
+be accessed as the current user, without a password, and that `psql` is on the
+path.
 
 ### Database
 
@@ -60,7 +61,7 @@ These defaults can be overridden by setting the following environment variables:
 
 ### Webserver
 
-RestfulGeof is a rack app, and can be served in various ways. One option is to
+RestfulGeof is a rack app and can be served in various ways. One option is to
 use [Unicorn](http://unicorn.bogomips.org):
 
     git clone git://github.com/groundtruth/restful_geof.git && cd restful_geof
@@ -77,7 +78,7 @@ handling, but may have drawbacks that make it inappropriate for your situation.
 
 ## Querying
 
-You can query RestfulGeof by constructing a GET request with the following
+You can query RestfulGeof by constructing a `GET` request with the following
 URL path (`[]` indicates optional parts, `{}` indicates values to fill in):
 
     /{database}/{table}[/{conditions}][/limit/{max_results}]
@@ -109,7 +110,7 @@ Here are a some examples:
 ## Planned functionality
 
 * Accept database authentication credentials from HTTP headers.
-* Read an individual feature by ID (e.g. `GET /api/database/table/22`).
+* Read an individual feature by ID (e.g. `GET /database/table/22`).
 * Find features closest to a point, or within a bounding box.
 * Create new features.
 * Update existing features.
@@ -117,7 +118,7 @@ Here are a some examples:
 * Return results in a JSONP wrapper.
 * Built-in CORS support.
 * Add [Code Climate](https://codeclimate.com) metrics.
-* Allow limit condition earlier in request URL.
+* Allow limit condition earlier in the request URL.
 * Extend README with an example of running RestfulGeof on Heroku.
 
 
@@ -125,4 +126,6 @@ Here are a some examples:
 
 RestfulGeof was created by [Groundtruth](http://groundtruth.com.au/)
 and is offered under the [MIT License](http://opensource.org/licenses/MIT).
+
+Comments and contributions are welcome.
 
