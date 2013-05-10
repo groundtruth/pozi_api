@@ -31,6 +31,8 @@ The integration tests assume there is a local database with PostGIS that can
 be accessed as the current user, without a password, and that `psql` is on the
 path.
 
+It is built for Ruby 1.9.
+
 ### Database
 
 RestfulGeof works with PostgreSQL and the PostGIS extension. You'll need
