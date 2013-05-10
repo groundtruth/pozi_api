@@ -11,8 +11,8 @@ RestfulGeof aims to provide a simple, GeoJSON-based, RESTful HTTP API for
 performing [CRUD](http://en.wikipedia.org/wiki/Create,_read,_update_and_delete)
 operations and basic querying on spatial data in Postgres tables.
 
-It is a generic tool that allows for specific APIs to be defined by creating
-purpose-built database tables for it to run on.
+It is a generic tool that allows for specific APIs to be defined by running it
+on purpose-built database tables.
 
 
 ## Setup
