@@ -4,12 +4,9 @@ require "restful_geof/store"
 module RestfulGeof
   module Routes
 
-    PREFIX = "/api"
-
     def self.route(request)
 
       if request.request_method == "GET" && request.path_info.match(%r{
-        ^#{Regexp.escape PREFIX}
         /(?<database>[^/]+)
         /(?<table>[^/]+)
         (?<conditions_string>(/[^/]+/(is|matches)/[^/]+)*)

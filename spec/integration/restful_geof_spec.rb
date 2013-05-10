@@ -19,12 +19,12 @@ module RestfulGeof
     describe "reading" do
 
       it "should have HTTP success code when called correctly" do
-        get "/api/restful_geof_test/spatial"
+        get "/restful_geof_test/spatial"
         last_response.should be_ok
       end
 
       it "should return a GeoJSON feature collection of all data" do
-        get "/api/restful_geof_test/spatial"
+        get "/restful_geof_test/spatial"
         last_response.body.should match_json_expression({
           "type" => "FeatureCollection",
           "features" => [
@@ -52,17 +52,17 @@ module RestfulGeof
       end
 
       it "should return a HTTP error code if there is a database error" do
-        get "/api/restful_geof_test/bad_table_name"
+        get "/restful_geof_test/bad_table_name"
         last_response.should_not be_ok
       end
 
       it "should return an empty feature collection if there are no rows in the DB" do
-        get "/api/restful_geof_test/empty"
+        get "/restful_geof_test/empty"
         last_response.body.should match_json_expression({ "type" => "FeatureCollection", "features" => [] })
       end
 
       it "should handle non-spatial tables" do
-        get "/api/restful_geof_test/non_spatial"
+        get "/restful_geof_test/non_spatial"
         last_response.body.should match_json_expression({
           "type" => "FeatureCollection",
           "features" => [
@@ -73,7 +73,7 @@ module RestfulGeof
       end
 
       it "should convert to EPSG 3857" do
-        get "/api/restful_geof_test/other_srid"
+        get "/restful_geof_test/other_srid"
         last_response.body.should match_json_expression({
           "type" => "FeatureCollection",
           "features" => [
@@ -88,7 +88,7 @@ module RestfulGeof
       describe "with conditions" do
 
         it "should handle limits" do
-          get "/api/restful_geof_test/spatial/limit/2"
+          get "/restful_geof_test/spatial/limit/2"
           last_response.body.should match_json_expression({
             "type" => "FeatureCollection",
             "features" => [wildcard_matcher, wildcard_matcher]
@@ -96,7 +96,7 @@ module RestfulGeof
         end
 
         it "should handle an 'is' condition with an integer" do
-          get "/api/restful_geof_test/spatial/id/is/3"
+          get "/restful_geof_test/spatial/id/is/3"
           last_response.body.should match_json_expression({
             "type" => "FeatureCollection",
             "features" => [{ "properties" => { "id" => 3 }.ignore_extra_keys!  }.ignore_extra_keys!]
@@ -104,7 +104,7 @@ module RestfulGeof
         end
 
         it "should handle an 'is' condition with a string" do
-          get "/api/restful_geof_test/spatial/name/is/second"
+          get "/restful_geof_test/spatial/name/is/second"
           last_response.body.should match_json_expression({
             "type" => "FeatureCollection",
             "features" => [{ "properties" => { "id" => 2 }.ignore_extra_keys!  }.ignore_extra_keys!]
@@ -112,7 +112,7 @@ module RestfulGeof
         end
 
         it "should handle an 'is' condition with a string of only digits" do
-          get "/api/restful_geof_test/spatial/name/is/123"
+          get "/restful_geof_test/spatial/name/is/123"
           last_response.body.should match_json_expression({
             "type" => "FeatureCollection",
             "features" => [{ "properties" => { "id" => 4 }.ignore_extra_keys!  }.ignore_extra_keys!]
@@ -120,7 +120,7 @@ module RestfulGeof
         end
 
         it "should handle 'matches' conditions" do
-          get "/api/restful_geof_test/spatial/search_text/matches/come%20right"
+          get "/restful_geof_test/spatial/search_text/matches/come%20right"
           last_response.body.should match_json_expression({
             "type" => "FeatureCollection",
             "features" => [{ "properties" => { "id" => 2 }.ignore_extra_keys!  }.ignore_extra_keys!]
@@ -128,7 +128,7 @@ module RestfulGeof
         end
 
         it "should have 'matches' conditions match when the last part is a prefix" do
-          get "/api/restful_geof_test/spatial/search_text/matches/first%20seco"
+          get "/restful_geof_test/spatial/search_text/matches/first%20seco"
           last_response.body.should match_json_expression({
             "type" => "FeatureCollection",
             "features" => [{ "properties" => { "id" => 2 }.ignore_extra_keys!  }.ignore_extra_keys!]
@@ -136,7 +136,7 @@ module RestfulGeof
         end
 
         it "should handle multple conditions, of different types" do
-          get "/api/restful_geof_test/spatial/id/is/2/search_text/matches/seco"
+          get "/restful_geof_test/spatial/id/is/2/search_text/matches/seco"
           last_response.body.should match_json_expression({
             "type" => "FeatureCollection",
             "features" => [{ "properties" => { "id" => 2 }.ignore_extra_keys!  }.ignore_extra_keys!]
