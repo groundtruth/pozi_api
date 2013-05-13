@@ -25,7 +25,7 @@ GRANT ALL ON SCHEMA public TO PUBLIC;
 
 CREATE TABLE spatial (
     id integer NOT NULL,
-    the_geom geometry(Point,3857),
+    the_geom geometry(Point,4326),
     name varchar,
     search_text TSVECTOR
 );
@@ -34,10 +34,10 @@ CREATE SEQUENCE spatial_id_seq START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVAL
 ALTER SEQUENCE spatial_id_seq OWNED BY spatial.id;
 ALTER TABLE ONLY spatial ALTER COLUMN id SET DEFAULT nextval('spatial_id_seq'::regclass);
 
-INSERT INTO spatial (the_geom, name, search_text) VALUES ('0101000020110F00007FA2DC818F7C6E414C3D8B855FA751C1', 'first', to_tsvector('english', 'the first one'));
-INSERT INTO spatial (the_geom, name, search_text) VALUES ('0101000020110F00007FA2DC818F7C6E414C3D8B855FA751C1', 'second', to_tsvector('english', 'second comes right after first'));
-INSERT INTO spatial (the_geom, name, search_text) VALUES ('0101000020110F00007FA2DC818F7C6E414C3D8B855FA751C1', 'third', to_tsvector('english', 'the last non-null one is third'));
-INSERT INTO spatial (the_geom, name, search_text) VALUES ('0101000020110F00007FA2DC818F7C6E414C3D8B855FA751C1', '123', to_tsvector('english', 'string field with only digits in it'));
+INSERT INTO spatial (the_geom, name, search_text) VALUES ('0101000020E610000074C6823DB3F26140B9B19563C32B43C0', 'first', to_tsvector('english', 'the first one'));
+INSERT INTO spatial (the_geom, name, search_text) VALUES ('0101000020E610000074C6823DB3F26140B9B19563C32B43C0', 'second', to_tsvector('english', 'second comes right after first'));
+INSERT INTO spatial (the_geom, name, search_text) VALUES ('0101000020E610000074C6823DB3F26140B9B19563C32B43C0', 'third', to_tsvector('english', 'the last non-null one is third'));
+INSERT INTO spatial (the_geom, name, search_text) VALUES ('0101000020E610000074C6823DB3F26140B9B19563C32B43C0', '123', to_tsvector('english', 'string field with only digits in it'));
 INSERT INTO spatial (the_geom, name, search_text) VALUES (NULL, 'no geometry', NULL);
 
 ALTER TABLE ONLY spatial ADD CONSTRAINT pk_spatial PRIMARY KEY (id);
@@ -46,7 +46,7 @@ ALTER TABLE ONLY spatial ADD CONSTRAINT pk_spatial PRIMARY KEY (id);
 
 CREATE TABLE other_srid (
     id integer NOT NULL,
-    the_geom geometry(Point,4326),
+    the_geom geometry(Point,3857),
     name varchar
 );
 
@@ -54,7 +54,7 @@ CREATE SEQUENCE other_srid_id_seq START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAX
 ALTER SEQUENCE other_srid_id_seq OWNED BY other_srid.id;
 ALTER TABLE ONLY other_srid ALTER COLUMN id SET DEFAULT nextval('other_srid_id_seq'::regclass);
 
-INSERT INTO other_srid (the_geom, name) VALUES ('0101000020E6100000BD2B6A3CB3F261405C09775EC32B43C0', 'first');
+INSERT INTO other_srid (the_geom, name) VALUES ('0101000020110F0000000000808F7C6E41000000805FA751C1', 'first');
 
 ALTER TABLE ONLY other_srid ADD CONSTRAINT pk_other_srid PRIMARY KEY (id);
 
@@ -62,7 +62,7 @@ ALTER TABLE ONLY other_srid ADD CONSTRAINT pk_other_srid PRIMARY KEY (id);
 
 CREATE TABLE empty (
     id integer NOT NULL,
-    the_geom geometry(Point,3857),
+    the_geom geometry(Point,4326),
     name varchar
 );
 

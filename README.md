@@ -44,7 +44,7 @@ column (none is okay, additional geometry columns will be ignored). This must
 be a geometry column, not a geography column.
 
 RestfulGeof can read colums of any SRID and will automatically transform them
-for presentation in EPSG:3857 (web mercator).
+for presentation in WGS84 (EPSG:4326).
 
 There must be at least one non-geography column (e.g. `id`).
 
