@@ -30,19 +30,35 @@ module RestfulGeof
           "features" => [
             {
               "type" => "Feature", "properties" => { "id" => 1, "name" => "first" },
-              "geometry" => { "type" => "Point", "coordinates" => [around(15983740.058183), around(-4627838.0866235)] }
+              "geometry" => {
+                "type" => "Point", 
+                "crs"=> { "type"=>"name", "properties"=> { "name" => "EPSG:3857" } },
+                "coordinates" => [around(15983740.058183), around(-4627838.0866235)]
+              }
             },
             {
               "type" => "Feature", "properties" => { "id" => 2, "name" => "second" },
-              "geometry" => { "type" => "Point", "coordinates" => [around(15983740.058183), around(-4627838.0866235)] }
+              "geometry" => {
+                "type" => "Point", 
+                "crs"=> { "type"=>"name", "properties"=> { "name" => "EPSG:3857" } },
+                "coordinates" => [around(15983740.058183), around(-4627838.0866235)]
+              }
             },
             {
               "type" => "Feature", "properties" => { "id" => 3, "name" => "third" },
-              "geometry" => { "type" => "Point", "coordinates" => [around(15983740.058183), around(-4627838.0866235)] }
+              "geometry" => {
+                "type" => "Point", 
+                "crs"=> { "type"=>"name", "properties"=> { "name" => "EPSG:3857" } },
+                "coordinates" => [around(15983740.058183), around(-4627838.0866235)]
+              }
             },
             {
               "type" => "Feature", "properties" => { "id" => 4, "name" => "123" },
-              "geometry" => { "type" => "Point", "coordinates" => [around(15983740.058183), around(-4627838.0866235)] }
+              "geometry" => {
+                "type" => "Point", 
+                "crs"=> { "type"=>"name", "properties"=> { "name" => "EPSG:3857" } },
+                "coordinates" => [around(15983740.058183), around(-4627838.0866235)]
+              }
             },
             {
               "type" => "Feature", "properties" => { "id" => 5, "name" => "no geometry" }
@@ -78,8 +94,13 @@ module RestfulGeof
           "type" => "FeatureCollection",
           "features" => [
               {
-                  "type" => "Feature", "properties" => { "id" => 1, "name" => "first" },
-                  "geometry" => { "type" => "Point", "coordinates" => [around(15983740), around(-4627838)] }
+                  "type" => "Feature",
+                  "properties" => { "id" => 1, "name" => "first" },
+                  "geometry" => {
+                    "type" => "Point", 
+                    "crs"=> { "type"=>"name", "properties"=> { "name" => "EPSG:3857" } },
+                    "coordinates" => [around(15983740), around(-4627838)]
+                  }
               }
           ]
         })
