@@ -3,6 +3,7 @@
 Talk to PostGIS in GeoJSON over HTTP.
 
 [![Build Status](https://travis-ci.org/groundtruth/restful_geof.png?branch=master)](https://travis-ci.org/groundtruth/restful%5Fgeof)
+[![Code Climate](https://codeclimate.com/github/groundtruth/restful_geof.png)](https://codeclimate.com/github/groundtruth/restful%5Fgeof)
 
 
 ## Introduction
