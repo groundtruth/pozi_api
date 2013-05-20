@@ -42,14 +42,13 @@ module RestfulGeof
 
     def to_sql
       raise "Need to specify table" unless @parts[:from]
-      <<-END_SQL
-        #{ select_clause }
-        #{ from_clause }
-        #{ where_clause }
-        #{ order_by_clause }
-        #{ limit_clause }
-        ;
-      END_SQL
+      [
+        select_clause,
+        from_clause,
+        where_clause,
+        order_by_clause,
+        limit_clause
+      ].compact.join("\n") + "\n;\n"
     end
 
     private
