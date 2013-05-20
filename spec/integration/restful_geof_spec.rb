@@ -156,6 +156,17 @@ module RestfulGeof
           })
         end
 
+        it "should have 'like' conditions that (1) allow wildcards (2) are case insensitive (3) ordered by proximity of match to left side" do
+          get "/restful_geof_test/like_table/name/like/%2522%20wills%25"
+          last_response.body.should match_json_expression({
+            "type" => "FeatureCollection",
+            "features" => [
+              { "properties" => { "id" => 2, "name" => "22 Wills St" } },
+              { "properties" => { "id" => 1, "name" => "1/22 Wills Street" } }
+            ].ordered!
+          })
+        end
+
         it "should handle multple conditions, of different types" do
           get "/restful_geof_test/spatial/id/is/2/search_text/matches/seco"
           last_response.body.should match_json_expression({
