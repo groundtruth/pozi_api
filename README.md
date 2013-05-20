@@ -128,7 +128,6 @@ Here are a some examples:
 * Delete existing features.
 * Return results in a JSONP wrapper.
 * Built-in CORS support.
-* Add [Code Climate](https://codeclimate.com) metrics.
 * Allow limit condition earlier in the request URL.
 * Extend README with an example of running RestfulGeof on Heroku.
 
