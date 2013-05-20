@@ -9,16 +9,19 @@ module RestfulGeof
 
     def initialize(database, table_name)
       @database = database
-      @table_name = table_name
       options = { dbname: @database }
       options[:host] = ENV["RESTFUL_GEOF_PG_HOST"] || "localhost"
       options[:port] = ENV["RESTFUL_GEOF_PG_PORT"] || "5432"
       options[:user] = ENV["RESTFUL_GEOF_PG_USERNAME"] if ENV["RESTFUL_GEOF_PG_USERNAME"]
       options[:password] = ENV["RESTFUL_GEOF_PG_PASSWORD"] if ENV["RESTFUL_GEOF_PG_PASSWORD"]
       @connection = PG.connect(options)
+
+      @table_name = table_name
     end
 
-    attr_reader :database, :table_name, :connection
+    attr_reader :database, :connection
+
+    attr_reader :table_name
 
     def geometry_column
       @geometry_column = column_info.map { |r| r[:column_name] if r[:udt_name] == "geometry" }.compact.first
@@ -83,17 +86,17 @@ module RestfulGeof
           if %w{integer int smallint bigint int2 int4 int8}.include?(col_type)
             value_expression = Integer(value).to_s
           else
-            value_expression = "'#{ @connection.escape_string value }'"
+            value_expression = "'#{ esc_s value }'"
           end
-          "#{ @connection.escape_string field } = #{ value_expression }"
+          "#{ esc_i field } = #{ value_expression }"
         end +
         conditions[:contains].map do |field, value|
-          "#{ @connection.escape_string field }::varchar ILIKE '%#{ @connection.escape_string value.gsub(/(?=[%_])/, "\\") }%'"
+          "#{ esc_i field }::varchar ILIKE '%#{ esc_s value.gsub(/(?=[%_])/, "\\") }%'"
         end +
         conditions[:matches].map do |field, value|
-          safe_value = @connection.escape_string value
+          safe_value = esc_s value
           <<-END_CONDITION
-            #{ @connection.escape_string field } @@
+            #{ esc_i field } @@
             CASE
               WHEN char_length(plainto_tsquery('#{ safe_value }')::varchar) > 0
               THEN to_tsquery(plainto_tsquery('#{ safe_value }')::varchar || ':*')
@@ -107,13 +110,13 @@ module RestfulGeof
         SELECT
           #{@table.normal_columns.join(", ")}
           #{ ", ST_AsGeoJSON(ST_Transform(#{@table.geometry_column}, 4326), 15, 2) AS geometry_geojson" if @table.geometry_column }
-        FROM #{@connection.escape_string @table_name}
+        FROM #{esc_i @table_name}
         #{ "WHERE #{where_conditions}" unless where_conditions.empty? }
         #{
           unless conditions[:contains].empty?
             "ORDER BY " +
             conditions[:contains].map do |field, value|
-              "position(upper('#{ @connection.escape_string value }') in upper(#{ @connection.escape_string field }::varchar))"
+              "position(upper('#{ esc_s value }') in upper(#{ esc_s field }::varchar))"
             end.join(", ")
           end
         }
@@ -131,6 +134,15 @@ module RestfulGeof
     end
 
     private
+
+    def esc_i identifier
+      @connection.escape_identifier(identifier)
+    end
+
+    def esc_s string
+      @connection.escape_string(string)
+    end
+
 
     def as_feature_collection(results)
       {
