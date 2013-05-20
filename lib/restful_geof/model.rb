@@ -5,56 +5,29 @@ require "restful_geof/query"
 
 module RestfulGeof
 
-  class Table
+  class TableInfo
 
-    def initialize(database, table_name)
-      @database = database
-      options = { dbname: @database }
-      options[:host] = ENV["RESTFUL_GEOF_PG_HOST"] || "localhost"
-      options[:port] = ENV["RESTFUL_GEOF_PG_PORT"] || "5432"
-      options[:user] = ENV["RESTFUL_GEOF_PG_USERNAME"] if ENV["RESTFUL_GEOF_PG_USERNAME"]
-      options[:password] = ENV["RESTFUL_GEOF_PG_PASSWORD"] if ENV["RESTFUL_GEOF_PG_PASSWORD"]
-      @connection = PG.connect(options)
-
-      @table_name = table_name
+    def initialize(column_info)
+      @column_info = column_info
     end
 
-    attr_reader :database, :connection
-
-    attr_reader :table_name
+    attr_accessor :column_info
 
     def geometry_column
-      @geometry_column = column_info.map { |r| r[:column_name] if r[:udt_name] == "geometry" }.compact.first
+      column_info.map { |r| r[:column_name] if r[:udt_name] == "geometry" }.compact.first
     end
 
     def tsvector_columns
-      @tsvector_column = column_info.map { |r| r[:column_name] if r[:udt_name] == "tsvector" }.compact
+      column_info.map { |r| r[:column_name] if r[:udt_name] == "tsvector" }.compact
     end
 
     def normal_columns
-      @normal_columns = column_info.map { |r| r[:column_name] } - ([geometry_column] + tsvector_columns)
+      column_info.map { |r| r[:column_name] } - ([geometry_column] + tsvector_columns)
     end
 
-    def column_info
-      @column_info ||= begin
-        @connection.exec(
-          Query.new.
-            select("column_name", "udt_name").
-            from("information_schema.columns").
-            where("table_catalog = '#{ esc_s @database }'").
-            and("table_name = '#{ esc_s @table_name }'").to_sql
-        ).to_a
-      end
-    end
-
-    private
-
-    def esc_i identifier
-      @connection.escape_identifier(identifier)
-    end
-
-    def esc_s string
-      @connection.escape_string(string)
+    def integer_col?(name)
+      col_type = column_info.select { |r| r[:column_name] == name }.first[:udt_name]
+      %w{integer int smallint bigint int2 int4 int8}.include?(col_type)
     end
 
   end
@@ -62,10 +35,15 @@ module RestfulGeof
   class Model
 
     def initialize(database, table_name)
-      @table = Table.new(database, table_name)
-      @database = @table.database
-      @table_name = @table.table_name
-      @connection = @table.connection
+      options = { dbname: database }
+      options[:host] = ENV["RESTFUL_GEOF_PG_HOST"] || "localhost"
+      options[:port] = ENV["RESTFUL_GEOF_PG_PORT"] || "5432"
+      options[:user] = ENV["RESTFUL_GEOF_PG_USERNAME"] if ENV["RESTFUL_GEOF_PG_USERNAME"]
+      options[:password] = ENV["RESTFUL_GEOF_PG_PASSWORD"] if ENV["RESTFUL_GEOF_PG_PASSWORD"]
+      @connection = PG.connect(options)
+
+      @database = database
+      @table_name = table_name
     end
 
 
@@ -83,18 +61,13 @@ module RestfulGeof
 
       query = Query.new
 
-      query.select(@table.normal_columns)
-      query.select("ST_AsGeoJSON(ST_Transform(#{@table.geometry_column}, 4326), 15, 2) AS geometry_geojson") if @table.geometry_column
+      query.select(table_info.normal_columns)
+      query.select("ST_AsGeoJSON(ST_Transform(#{table_info.geometry_column}, 4326), 15, 2) AS geometry_geojson") if table_info.geometry_column
 
       query.from(esc_i @table_name)
 
       conditions[:is].each do |field, value|
-        col_type = @table.column_info.select { |r| r[:column_name] == field }.first[:udt_name]
-        if %w{integer int smallint bigint int2 int4 int8}.include?(col_type)
-          value_expression = Integer(value).to_s
-        else
-          value_expression = "'#{ esc_s value }'"
-        end
+        value_expression = table_info.integer_col?(field) ? Integer(value).to_s : "'#{ esc_s value }'"
         query.where "#{ esc_i field } = #{ value_expression }"
       end
 
@@ -133,6 +106,20 @@ module RestfulGeof
 
     def esc_s string
       @connection.escape_string(string)
+    end
+
+    def table_info
+      @table_info ||= TableInfo.new(
+        begin
+          @connection.exec(
+            Query.new.
+              select("column_name", "udt_name").
+              from("information_schema.columns").
+              where("table_catalog = '#{ esc_s @connection.db }'").
+              and("table_name = '#{ esc_s @table_name }'").to_sql
+          ).to_a
+        end
+      )
     end
 
     def as_feature_collection(results)
