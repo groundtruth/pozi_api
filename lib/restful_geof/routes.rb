@@ -9,7 +9,7 @@ module RestfulGeof
       if request.request_method == "GET" && request.path_info.match(%r{
         /(?<database>[^/]+)
         /(?<table>[^/]+)
-        (?<conditions_string>(/[^/]+/(is|matches)/[^/]+)*)
+        (?<conditions_string>(/[^/]+/(is|matches|contains)/[^/]+)*)
         (/limit/(?<limit>\d+)$)?
       }x)
 
@@ -18,11 +18,11 @@ module RestfulGeof
         limit = URI.unescape $~[:limit].to_s
         conditions = $~[:conditions_string].to_s.scan(%r{
           /(?<field>[^/]+)
-          /(?<operator>is|matches)
+          /(?<operator>is|matches|contains)
           /(?<value>[^/]+)
         }x)
 
-        options = { :is => {}, :matches => {} }
+        options = { :is => {}, :matches => {}, :contains => {} }
         options[:limit] = limit.to_i unless limit.empty?
         conditions.each do |condition|
           field, operator, value = condition.map { |str| URI.unescape str }

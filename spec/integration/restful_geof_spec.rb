@@ -116,55 +116,78 @@ module RestfulGeof
           })
         end
 
-        it "should handle an 'is' condition with an integer" do
-          get "/restful_geof_test/spatial/id/is/3"
-          last_response.body.should match_json_expression({
-            "type" => "FeatureCollection",
-            "features" => [{ "properties" => { "id" => 3 }.ignore_extra_keys!  }.ignore_extra_keys!]
-          })
+        describe "'is' conditions" do
+
+          it "should handle integers" do
+            get "/restful_geof_test/spatial/id/is/3"
+            last_response.body.should match_json_expression({
+              "type" => "FeatureCollection",
+              "features" => [{ "properties" => { "id" => 3 }.ignore_extra_keys!  }.ignore_extra_keys!]
+            })
+          end
+
+          it "should handle strings" do
+            get "/restful_geof_test/spatial/name/is/second"
+            last_response.body.should match_json_expression({
+              "type" => "FeatureCollection",
+              "features" => [{ "properties" => { "id" => 2 }.ignore_extra_keys!  }.ignore_extra_keys!]
+            })
+          end
+
+          it "should handle strings of only digits" do
+            get "/restful_geof_test/spatial/name/is/123"
+            last_response.body.should match_json_expression({
+              "type" => "FeatureCollection",
+              "features" => [{ "properties" => { "id" => 4 }.ignore_extra_keys!  }.ignore_extra_keys!]
+            })
+          end
+
         end
 
-        it "should handle an 'is' condition with a string" do
-          get "/restful_geof_test/spatial/name/is/second"
-          last_response.body.should match_json_expression({
-            "type" => "FeatureCollection",
-            "features" => [{ "properties" => { "id" => 2 }.ignore_extra_keys!  }.ignore_extra_keys!]
-          })
+        describe "'matches' conditions" do
+
+          it "should find matching results" do
+            get "/restful_geof_test/spatial/search_text/matches/come%20right"
+            last_response.body.should match_json_expression({
+              "type" => "FeatureCollection",
+              "features" => [{ "properties" => { "id" => 2 }.ignore_extra_keys!  }.ignore_extra_keys!]
+            })
+          end
+
+          it "should match when the last part is a prefix" do
+            get "/restful_geof_test/spatial/search_text/matches/first%20seco"
+            last_response.body.should match_json_expression({
+              "type" => "FeatureCollection",
+              "features" => [{ "properties" => { "id" => 2 }.ignore_extra_keys!  }.ignore_extra_keys!]
+            })
+          end
+
         end
 
-        it "should handle an 'is' condition with a string of only digits" do
-          get "/restful_geof_test/spatial/name/is/123"
-          last_response.body.should match_json_expression({
-            "type" => "FeatureCollection",
-            "features" => [{ "properties" => { "id" => 4 }.ignore_extra_keys!  }.ignore_extra_keys!]
-          })
-        end
+        describe "'contains' conditions" do
 
-        it "should handle 'matches' conditions" do
-          get "/restful_geof_test/spatial/search_text/matches/come%20right"
-          last_response.body.should match_json_expression({
-            "type" => "FeatureCollection",
-            "features" => [{ "properties" => { "id" => 2 }.ignore_extra_keys!  }.ignore_extra_keys!]
-          })
-        end
+          it "should be case insensitive" do
+            get "/restful_geof_test/string_table/name/contains/22%20wills"
+            last_response.body.should match_json_expression({
+              "type" => "FeatureCollection",
+              "features" => [
+                { "type" => "Feature", "properties" => { "id" => 1, "name" => "1/22 Wills Street" } },
+                { "type" => "Feature", "properties" => { "id" => 2, "name" => "22 Wills St" } }
+              ].unordered!
+            })
+          end
 
-        it "should have 'matches' conditions match when the last part is a prefix" do
-          get "/restful_geof_test/spatial/search_text/matches/first%20seco"
-          last_response.body.should match_json_expression({
-            "type" => "FeatureCollection",
-            "features" => [{ "properties" => { "id" => 2 }.ignore_extra_keys!  }.ignore_extra_keys!]
-          })
-        end
+          it "should return results ordered by proximity of matched string to left side" do
+            get "/restful_geof_test/string_table/name/contains/22%20wills"
+            last_response.body.should match_json_expression({
+              "type" => "FeatureCollection",
+              "features" => [
+                { "type" => "Feature", "properties" => { "id" => 2, "name" => "22 Wills St" } },
+                { "type" => "Feature", "properties" => { "id" => 1, "name" => "1/22 Wills Street" } }
+              ].ordered!
+            })
+          end
 
-        it "should have 'like' conditions that (1) allow wildcards (2) are case insensitive (3) ordered by proximity of match to left side" do
-          get "/restful_geof_test/like_table/name/like/%2522%20wills%25"
-          last_response.body.should match_json_expression({
-            "type" => "FeatureCollection",
-            "features" => [
-              { "properties" => { "id" => 2, "name" => "22 Wills St" } },
-              { "properties" => { "id" => 1, "name" => "1/22 Wills Street" } }
-            ].ordered!
-          })
         end
 
         it "should handle multple conditions, of different types" do

@@ -82,15 +82,16 @@ INSERT INTO non_spatial (name) VALUES ('second');
 
 -- LIKE search
 
-CREATE TABLE like_table (
+CREATE TABLE string_table (
     id integer NOT NULL,
     name varchar
 );
 
-CREATE SEQUENCE like_table_id_seq START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE CACHE 1;
-ALTER SEQUENCE like_table_id_seq OWNED BY like_table.id;
-ALTER TABLE ONLY like_table ALTER COLUMN id SET DEFAULT nextval('like_table_id_seq'::regclass);
+CREATE SEQUENCE string_table_id_seq START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE CACHE 1;
+ALTER SEQUENCE string_table_id_seq OWNED BY string_table.id;
+ALTER TABLE ONLY string_table ALTER COLUMN id SET DEFAULT nextval('string_table_id_seq'::regclass);
 
-INSERT INTO like_table (name) VALUES ('1/22 Wills Street');
-INSERT INTO like_table (name) VALUES ('22 Wills St');
+INSERT INTO string_table (name) VALUES ('1/22 Wills Street');
+INSERT INTO string_table (name) VALUES ('22 Wills St');
+INSERT INTO string_table (name) VALUES ('666 Wrongsideofthe Tracks');
 

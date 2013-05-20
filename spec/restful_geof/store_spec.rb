@@ -151,6 +151,16 @@ module RestfulGeof
             subject.find({ :is => { "name" => "world" }})
           end
 
+          it "should include 'contains' conditions (with correct escaping)" do
+            connection.should_receive(:exec).with(/name::varchar ILIKE '%world\\%%'/)
+            subject.find({ :contains => { "name" => "world%" }})
+          end
+
+          it "should order results with 'contains' conditions" do
+            connection.should_receive(:exec).with(/ORDER BY position/)
+            subject.find({ :contains => { "name" => "world" }})
+          end
+
           it "should include 'matches' conditions" do
             connection.should_receive(:exec).with(/ts_address @@/)
             subject.find({ :matches => { "ts_address" => "Main Stree" }})

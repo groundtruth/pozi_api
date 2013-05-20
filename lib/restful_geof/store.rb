@@ -36,6 +36,7 @@ module RestfulGeof
 
     def find(conditions={})
       conditions[:is] ||= {}
+      conditions[:contains] ||= {}
       conditions[:matches] ||= {}
 
       where_conditions = (
@@ -47,6 +48,9 @@ module RestfulGeof
             value_expression = "'#{ @connection.escape_string value }'"
           end
           "#{ @connection.escape_string field } = #{ value_expression }"
+        end +
+        conditions[:contains].map do |field, value|
+          "#{ @connection.escape_string field }::varchar ILIKE '%#{ @connection.escape_string value.gsub(/(?=[%_])/, "\\") }%'"
         end +
         conditions[:matches].map do |field, value|
           safe_value = @connection.escape_string value
@@ -67,6 +71,14 @@ module RestfulGeof
           #{ ", ST_AsGeoJSON(ST_Transform(#{geometry_column}, 4326), 15, 2) AS geometry_geojson" if geometry_column }
         FROM #{@connection.escape_string @table}
         #{ "WHERE #{where_conditions}" unless where_conditions.empty? }
+        #{
+          unless conditions[:contains].empty?
+            "ORDER BY " +
+            conditions[:contains].map do |field, value|
+              "position(upper('#{ @connection.escape_string value }') in upper(#{ @connection.escape_string field }::varchar))"
+            end.join(", ")
+          end
+        }
         #{ "LIMIT #{conditions[:limit]}" if conditions[:limit] }
         ;
       END_SQL

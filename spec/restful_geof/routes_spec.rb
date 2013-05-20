@@ -41,6 +41,12 @@ module RestfulGeof
             subject.route(request)
           end
           
+          it "should get contains conditions" do
+            request = mock(request_method: "GET", path_info: "/mydb/mytable/groupid/is/2/name/contains/mr%20ed%25/limit/3")
+            store.should_receive(:find).with(hash_including(contains: { "name" => "mr ed%" }))
+            subject.route(request)
+          end
+
           it "should get limit conditions" do
             request = mock(request_method: "GET", path_info: "/mydb/mytable/groupid/is/2/name/matches/mr%20ed/limit/3")
             store.should_receive(:find).with(hash_including(limit: 3))
