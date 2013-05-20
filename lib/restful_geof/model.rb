@@ -1,36 +1,11 @@
 require "pg"
 require "pg_typecast"
 require "json"
+
+require "restful_geof/table_info"
 require "restful_geof/query"
 
 module RestfulGeof
-
-  class TableInfo
-
-    def initialize(column_info)
-      @column_info = column_info
-    end
-
-    attr_accessor :column_info
-
-    def geometry_column
-      column_info.map { |r| r[:column_name] if r[:udt_name] == "geometry" }.compact.first
-    end
-
-    def tsvector_columns
-      column_info.map { |r| r[:column_name] if r[:udt_name] == "tsvector" }.compact
-    end
-
-    def normal_columns
-      column_info.map { |r| r[:column_name] } - ([geometry_column] + tsvector_columns)
-    end
-
-    def integer_col?(name)
-      col_type = column_info.select { |r| r[:column_name] == name }.first[:udt_name]
-      %w{integer int smallint bigint int2 int4 int8}.include?(col_type)
-    end
-
-  end
 
   class Model
 
@@ -42,8 +17,17 @@ module RestfulGeof
       options[:password] = ENV["RESTFUL_GEOF_PG_PASSWORD"] if ENV["RESTFUL_GEOF_PG_PASSWORD"]
       @connection = PG.connect(options)
 
-      @database = database
       @table_name = table_name
+
+      @table_info = TableInfo.new(
+        @connection.exec(
+          Query.new.
+            select("column_name", "udt_name").
+            from("information_schema.columns").
+            where("table_catalog = '#{ esc_s @connection.db }'").
+            and("table_name = '#{ esc_s @table_name }'").to_sql
+        ).to_a
+      )
     end
 
 
@@ -58,16 +42,15 @@ module RestfulGeof
       conditions[:contains] ||= {}
       conditions[:matches] ||= {}
 
-
       query = Query.new
 
-      query.select(table_info.normal_columns)
-      query.select("ST_AsGeoJSON(ST_Transform(#{table_info.geometry_column}, 4326), 15, 2) AS geometry_geojson") if table_info.geometry_column
+      query.select(@table_info.normal_columns)
+      query.select("ST_AsGeoJSON(ST_Transform(#{@table_info.geometry_column}, 4326), 15, 2) AS geometry_geojson") if @table_info.geometry_column
 
       query.from(esc_i @table_name)
 
       conditions[:is].each do |field, value|
-        value_expression = table_info.integer_col?(field) ? Integer(value).to_s : "'#{ esc_s value }'"
+        value_expression = @table_info.integer_col?(field) ? Integer(value).to_s : "'#{ esc_s value }'"
         query.where "#{ esc_i field } = #{ value_expression }"
       end
 
@@ -106,20 +89,6 @@ module RestfulGeof
 
     def esc_s string
       @connection.escape_string(string)
-    end
-
-    def table_info
-      @table_info ||= TableInfo.new(
-        begin
-          @connection.exec(
-            Query.new.
-              select("column_name", "udt_name").
-              from("information_schema.columns").
-              where("table_catalog = '#{ esc_s @connection.db }'").
-              and("table_name = '#{ esc_s @table_name }'").to_sql
-          ).to_a
-        end
-      )
     end
 
     def as_feature_collection(results)
