@@ -3,7 +3,7 @@ require "pg_typecast"
 require "json"
 
 module RestfulGeof
-  class Store
+  class Model
 
     def initialize(database, table)
       @database = database

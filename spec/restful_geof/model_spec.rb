@@ -1,9 +1,9 @@
 require "spec_helper"
-require "restful_geof/store"
+require "restful_geof/model"
 require "json"
 
 module RestfulGeof
-  describe Store do
+  describe Model do
 
     let(:connection) { mock("connection") }
     let(:pg_host) { stub("pg_host") }
@@ -11,7 +11,7 @@ module RestfulGeof
     let(:database) { stub("dbname") }
     let(:table) { stub("tablename") }
 
-    subject { Store.new(database, table) }
+    subject { Model.new(database, table) }
 
     before :each do
       PG.stub(:connect).and_return(connection)
@@ -105,7 +105,7 @@ module RestfulGeof
       context "no results" do
         it "should render GeoJSON" do
           connection.should_receive(:exec).with(/SELECT\n/).and_return([])
-          find_result = Store.new(database, table).find
+          find_result = Model.new(database, table).find
           JSON.parse(find_result).should == { "type" => "FeatureCollection", "features" => [] }
         end
       end
