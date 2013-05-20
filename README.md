@@ -88,11 +88,19 @@ URL path (`[]` indicates optional parts, `{}` indicates values to fill in):
 Where `{conditions}` are one, or several (`/` separated) of the following:
 
     {field}/is/{value}
+    {field}/contains/{value}
     {field}/matches/{value}
 
 The `is` conditions will match a given field exactly (with ` = `). The value
 part of an `is` condition will be cast to an integer if the database column
 is of an integer type, otherwise it will be treated as a string.
+
+The `contains` conditions will match if the value string is found within the
+given field. This is case insensitive and results will be returned earlier if
+they the match is further to the left. The intention of this is to provide
+basic querying for autocomplete, where full-text search (see below) is not
+appropriate. Note that this kind of query can not be aided by an index so it
+will perform poorly on large datasets.
 
 The `matches` conditions will do a
 [full-text search](http://www.postgresql.org/docs/9.2/static/textsearch.html)
@@ -105,8 +113,8 @@ Here are a some examples:
     /citydb/offices
     /citydb/addresses/limit/1000
     /citydb/addresses/propertyid/is/2340982
-    /citydb/addresses/ts_full_address/matches/22%20high%20st/limit/10
-    /citydb/addresses/collection_day/is/Monday/ts_full_address/matches/high%20st/limit/1000
+    /citydb/addresses/full_address/contains/22%20high/limit/10
+    /citydb/addresses/collection_day/is/Monday/report/matches/broken/limit/1000
 
 
 ## Planned functionality
