@@ -36,7 +36,7 @@ module RestfulGeof
     end
 
     def limit(number)
-      @limit = number
+      @parts[:limit] = number
       self
     end
 
@@ -75,7 +75,7 @@ module RestfulGeof
     end
 
     def limit_clause
-      "LIMIT #{ Integer(@parts[:limit]).to_s } " if @parts[:limit]
+      "LIMIT #{ Integer(@parts[:limit]).to_s }" unless @parts[:limit].to_s.empty?
     end
 
   end

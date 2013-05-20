@@ -80,51 +80,43 @@ module RestfulGeof
       conditions[:contains] ||= {}
       conditions[:matches] ||= {}
 
-      where_conditions = (
-        conditions[:is].map do |field, value|
-          col_type = @table.column_info.select { |r| r[:column_name] == field }.first[:udt_name]
-          if %w{integer int smallint bigint int2 int4 int8}.include?(col_type)
-            value_expression = Integer(value).to_s
-          else
-            value_expression = "'#{ esc_s value }'"
-          end
-          "#{ esc_i field } = #{ value_expression }"
-        end +
-        conditions[:contains].map do |field, value|
-          "#{ esc_i field }::varchar ILIKE '%#{ esc_s value.gsub(/(?=[%_])/, "\\") }%'"
-        end +
-        conditions[:matches].map do |field, value|
-          safe_value = esc_s value
-          <<-END_CONDITION
-            #{ esc_i field } @@
-            CASE
-              WHEN char_length(plainto_tsquery('#{ safe_value }')::varchar) > 0
-              THEN to_tsquery(plainto_tsquery('#{ safe_value }')::varchar || ':*')
-              ELSE plainto_tsquery('#{ safe_value }')
-            END
-          END_CONDITION
+
+      query = Query.new
+
+      query.select(@table.normal_columns)
+      query.select("ST_AsGeoJSON(ST_Transform(#{@table.geometry_column}, 4326), 15, 2) AS geometry_geojson") if @table.geometry_column
+
+      query.from(esc_i @table_name)
+
+      conditions[:is].each do |field, value|
+        col_type = @table.column_info.select { |r| r[:column_name] == field }.first[:udt_name]
+        if %w{integer int smallint bigint int2 int4 int8}.include?(col_type)
+          value_expression = Integer(value).to_s
+        else
+          value_expression = "'#{ esc_s value }'"
         end
-      ).join(" AND ")
+        query.where "#{ esc_i field } = #{ value_expression }"
+      end
 
-      sql = <<-END_SQL
-        SELECT
-          #{@table.normal_columns.join(", ")}
-          #{ ", ST_AsGeoJSON(ST_Transform(#{@table.geometry_column}, 4326), 15, 2) AS geometry_geojson" if @table.geometry_column }
-        FROM #{esc_i @table_name}
-        #{ "WHERE #{where_conditions}" unless where_conditions.empty? }
-        #{
-          unless conditions[:contains].empty?
-            "ORDER BY " +
-            conditions[:contains].map do |field, value|
-              "position(upper('#{ esc_s value }') in upper(#{ esc_s field }::varchar))"
-            end.join(", ")
-          end
-        }
-        #{ "LIMIT #{conditions[:limit]}" if conditions[:limit] }
-        ;
-      END_SQL
+      conditions[:contains].each do |field, value|
+        query.where "#{ esc_i field }::varchar ILIKE '%#{ esc_s value.gsub(/(?=[%_])/, "\\") }%'"
+        query.order_by "position(upper('#{ esc_s value }') in upper(#{ esc_i field }::varchar))"
+      end
 
-      as_feature_collection(@connection.exec(sql).to_a)
+      conditions[:matches].each do |field, value|
+        query.where <<-END_CONDITION
+          #{ esc_i field } @@
+          CASE
+            WHEN char_length(plainto_tsquery('#{ esc_s value }')::varchar) > 0
+            THEN to_tsquery(plainto_tsquery('#{ esc_s value }')::varchar || ':*')
+            ELSE plainto_tsquery('#{ esc_s value }')
+          END
+        END_CONDITION
+      end
+
+      query.limit conditions[:limit]
+
+      as_feature_collection(@connection.exec(query.to_sql).to_a)
     end
 
     def update
@@ -142,7 +134,6 @@ module RestfulGeof
     def esc_s string
       @connection.escape_string(string)
     end
-
 
     def as_feature_collection(results)
       {
