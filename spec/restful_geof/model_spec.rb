@@ -5,17 +5,18 @@ require "json"
 module RestfulGeof
   describe Model do
 
-    let(:connection) { mock("connection") }
     let(:pg_host) { stub("pg_host") }
     let(:pg_port) { stub("pg_port") }
     let(:database) { stub("dbname") }
     let(:table) { stub("tablename") }
+    let(:connection) { mock("connection", :db => database) }
 
     subject { Model.new(database, table) }
 
     before :each do
       PG.stub(:connect).and_return(connection)
       connection.stub(:escape_string) { |str| str }
+      connection.stub(:escape_identifier) { |str| str }
     end
 
     describe "#initialize" do
@@ -97,7 +98,7 @@ module RestfulGeof
     describe "#find" do
 
       before(:each) do
-        connection.stub(:exec).with(/column_name/, anything).and_return([
+        connection.stub(:exec).with(/column_name/).and_return([
           { :column_name => "id", :udt_name => "integer" },
           { :column_name => "groupid", :udt_name => "int4" },
           { :column_name => "name", :udt_name => "varchar" },
@@ -107,7 +108,7 @@ module RestfulGeof
 
       context "no results" do
         it "should render GeoJSON" do
-          connection.should_receive(:exec).with(/SELECT\n/).and_return([])
+          connection.should_receive(:exec).with(/the_geom/).and_return([])
           find_result = Model.new(database, table).find
           JSON.parse(find_result).should == { "type" => "FeatureCollection", "features" => [] }
         end
@@ -116,7 +117,7 @@ module RestfulGeof
       context "with results" do
 
         it "should render GeoJSON (for results with or without geometries)" do
-          connection.should_receive(:exec).with(/SELECT\n/).and_return([
+          connection.should_receive(:exec).with(/the_geom/).and_return([
             { :id => 11, :name => "somewhere", :geometry_geojson => nil },
             { :id => 22, :name => "big one", :geometry_geojson => '{"type":"Point","coordinates":[145.716104000000001,-38.097603999999997]}' }
           ])
