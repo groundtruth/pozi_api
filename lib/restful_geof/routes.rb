@@ -1,5 +1,5 @@
 require "uri"
-require "restful_geof/model"
+require "restful_geof/store"
 
 module RestfulGeof
   module Routes
@@ -29,7 +29,7 @@ module RestfulGeof
           options[operator.to_sym][field] = value
         end
 
-        return Model.new(database, table).find(options)
+        return Store.new(database, table).find(options)
       end
 
       400 # Bad Request

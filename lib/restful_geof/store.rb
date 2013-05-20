@@ -7,7 +7,7 @@ require "restful_geof/query"
 
 module RestfulGeof
 
-  class Model
+  class Store
 
     def initialize(database, table_name)
       options = { dbname: database }
