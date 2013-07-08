@@ -31,7 +31,14 @@ module RestfulGeof
 
           it "should make the correct call" do
             result = mock("result")
-            store.should_receive(:read).with(22).and_return(result)
+            store.should_receive(:read).with("22").and_return(result)
+            subject.route(request).should == result
+          end
+
+          it "should handle non-integer IDs" do
+            request = mock(request_method: "GET", path_info: "/mydb/mytable/e99b71")
+            result = mock("result")
+            store.should_receive(:read).with("e99b71").and_return(result)
             subject.route(request).should == result
           end
 

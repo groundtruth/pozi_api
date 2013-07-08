@@ -37,13 +37,13 @@ module RestfulGeof
         ^
         /(?<database>[^/]+)
         /(?<table>[^/]+)
-        /(?<id>\d+)
+        /(?<id>[^/]+)
         $
       }x)
 
         database = URI.unescape $~[:database].to_s
         table = URI.unescape $~[:table].to_s
-        id = URI.unescape($~[:id]).to_i
+        id = URI.unescape($~[:id])
 
         return Store.new(database, table).read(id)
 
