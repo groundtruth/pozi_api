@@ -140,6 +140,26 @@ module RestfulGeof
 
     end
 
+    describe "#read" do
+
+      it "should select the correct record and render it in GeoJSON" do
+        connection.should_receive(:exec).with(/WHERE id = 22/).and_return([
+          { :id => 22, :name => "big one", :geometry_geojson => '{"type":"Point","coordinates":[145.716104000000001,-38.097603999999997]}' }
+        ])
+        JSON.parse(subject.read(22)).should == {
+          "type" => "FeatureCollection",
+          "features" => [
+            {
+              "type" => "Feature",
+              "properties" => { "id" => 22, "name" => "big one" },
+              "geometry" => { "type" => "Point", "coordinates" => [145.716104, -38.097604] }
+            }
+          ]
+        }
+      end
+
+    end
+
   end
 end
 

@@ -34,7 +34,11 @@ module RestfulGeof
     def create
     end
 
-    def read
+    def read(id)
+      query = Query.new.
+        where("#{ esc_i @table_info.id_column } = #{ i_or_quoted_s_for(id, @table_info.id_column) }").
+        from(esc_i @table_name)
+      as_feature_collection(@connection.exec(query.to_sql).to_a)
     end
 
     def find(conditions={})
@@ -50,8 +54,7 @@ module RestfulGeof
       query.from(esc_i @table_name)
 
       conditions[:is].each do |field, value|
-        value_expression = @table_info.integer_col?(field) ? Integer(value).to_s : "'#{ esc_s value }'"
-        query.where "#{ esc_i field } = #{ value_expression }"
+        query.where "#{ esc_i field } = #{ i_or_quoted_s_for(value, field) }"
       end
 
       conditions[:contains].each do |field, value|
@@ -89,6 +92,10 @@ module RestfulGeof
 
     def esc_s string
       @connection.escape_string(string)
+    end
+
+    def i_or_quoted_s_for value, field
+      @table_info.integer_col?(field) ? Integer(value).to_s : "'#{ esc_s value }'"
     end
 
     def as_feature_collection(results)
