@@ -16,7 +16,7 @@ module RestfulGeof
       (number - precision)..(number + precision)
     end
 
-    describe "reading" do
+    describe "querying" do
 
       it "should have HTTP success code when called correctly" do
         get "/restful_geof_test/spatial"
@@ -198,6 +198,28 @@ module RestfulGeof
           })
         end
 
+      end
+
+    end
+
+    describe "reading" do
+
+      it "should read a specific record by ID" do
+        pending
+        get "/restful_geof_test/spatial/2"
+        last_response.body.should match_json_expression({
+          "type" => "FeatureCollection",
+          "features" => [
+            {
+              "type" => "Feature", "properties" => { "id" => 2, "name" => "second" },
+              "geometry" => {
+                "type" => "Point", 
+                "crs"=> { "type"=>"name", "properties"=> { "name" => "EPSG:4326" } },
+                "coordinates" => [around(143.584379916592), around(-38.3419002991608)]
+              }
+            },
+          ]
+        })
       end
 
     end
