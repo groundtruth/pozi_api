@@ -98,15 +98,15 @@ is of an integer type, otherwise it will be treated as a string.
 
 The `contains` conditions will match if the value string is found within the
 given field. This is case insensitive and results will be returned earlier if
-they the match is further to the left. The intention of this is to provide
-basic querying for autocomplete, where full-text search (see below) is not
+the match is further to the left. The intention of this is to provide basic
+querying for autocomplete, where full-text search (see below) is not
 appropriate. Note that this kind of query can not be aided by an index so it
 will perform poorly on large datasets.
 
 The `matches` conditions will do a
 [full-text search](http://www.postgresql.org/docs/9.2/static/textsearch.html)
 match (with ` @@ `). The value given will be cast to a `tsquery` using
-`plainto_tsquery()`. To allow for autocomplete functionality, the query will be
+`plainto_tsquery()`. To allow for autocomplete functionality, the query is
 adjusted so that the final search term can match as a prefix.
 
 Here are a some examples:
