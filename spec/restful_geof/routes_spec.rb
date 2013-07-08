@@ -22,9 +22,17 @@ module RestfulGeof
         describe "read action" do
 
           let(:request) { mock(request_method: "GET", path_info: "/mydb/mytable/22") }
+
           it "should not be misinterpreted as a query" do
+            store.stub(:read)
             store.should_not_receive(:find)
             subject.route(request)
+          end
+
+          it "should make the correct call" do
+            result = mock("result")
+            store.should_receive(:read).with(22).and_return(result)
+            subject.route(request).should == result
           end
 
         end

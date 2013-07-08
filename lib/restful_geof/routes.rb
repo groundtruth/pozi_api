@@ -32,6 +32,21 @@ module RestfulGeof
         end
 
         return Store.new(database, table).find(options)
+
+      elsif request.request_method == "GET" && request.path_info.match(%r{
+        ^
+        /(?<database>[^/]+)
+        /(?<table>[^/]+)
+        /(?<id>\d+)
+        $
+      }x)
+
+        database = URI.unescape $~[:database].to_s
+        table = URI.unescape $~[:table].to_s
+        id = URI.unescape($~[:id]).to_i
+
+        return Store.new(database, table).read(id)
+
       end
 
       400 # Bad Request
