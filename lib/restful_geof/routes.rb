@@ -7,10 +7,12 @@ module RestfulGeof
     def self.route(request)
 
       if request.request_method == "GET" && request.path_info.match(%r{
+        ^
         /(?<database>[^/]+)
         /(?<table>[^/]+)
         (?<conditions_string>(/[^/]+/(is|matches|contains)/[^/]+)*)
-        (/limit/(?<limit>\d+)$)?
+        (/limit/(?<limit>\d+))?
+        $
       }x)
 
         database = URI.unescape $~[:database].to_s

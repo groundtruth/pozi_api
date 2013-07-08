@@ -18,8 +18,18 @@ module RestfulGeof
         before :each do
           Store.stub(:new).and_return(store)
         end
+
+        describe "read action" do
+
+          let(:request) { mock(request_method: "GET", path_info: "/mydb/mytable/22") }
+          it "should not be misinterpreted as a query" do
+            store.should_not_receive(:find)
+            subject.route(request)
+          end
+
+        end
         
-        describe "read actions" do
+        describe "query actions" do
           
           it "should handle basic read requests, returning the result" do
             request = mock(request_method: "GET", path_info: "/mydb/mytable")
