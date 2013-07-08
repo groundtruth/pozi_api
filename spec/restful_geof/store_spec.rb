@@ -10,6 +10,12 @@ module RestfulGeof
     let(:database) { stub("dbname") }
     let(:table) { stub("tablename") }
     let(:connection) { mock("connection", :db => database) }
+    let(:column_info) {[
+      { :column_name => "id", :udt_name => "integer" },
+      { :column_name => "groupid", :udt_name => "int4" },
+      { :column_name => "name", :udt_name => "varchar" },
+      { :column_name => "the_geom", :udt_name => "geometry" }
+    ]}
 
     subject { Store.new(database, table) }
 
@@ -17,12 +23,14 @@ module RestfulGeof
       PG.stub(:connect).and_return(connection)
       connection.stub(:escape_string) { |str| str }
       connection.stub(:escape_identifier) { |str| str }
+      connection.stub(:exec).with(/information_schema\.columns/).and_return(column_info)
+      TableInfo.stub(:new).with(column_info).and_call_original
+      Query.stub(:new).and_call_original
     end
 
     describe "#initialize" do
 
       before :each do
-        connection.stub(:exec)
         ENV.stub(:[])
       end
 
@@ -30,7 +38,7 @@ module RestfulGeof
         ENV.stub(:[]).with("RESTFUL_GEOF_PG_HOST").and_return(pg_host)
         ENV.stub(:[]).with("RESTFUL_GEOF_PG_PORT").and_return(pg_port)
         PG.should_receive(:connect).with(hash_including(host: pg_host, port: pg_port))
-        subject.class.new(database, table)
+        subject
       end
 
       it "should connect without DB username/password if not given by environment variables" do
@@ -38,38 +46,29 @@ module RestfulGeof
           options.keys.include?(:user).should be_false
           options.keys.include?(:password).should be_false
         end
-        subject.class.new(database, table)
+        subject
       end
 
       it "should connect using DB credentials from environment variables if given" do
         ENV.stub(:[]).with("RESTFUL_GEOF_PG_USERNAME").and_return("user")
         ENV.stub(:[]).with("RESTFUL_GEOF_PG_PASSWORD").and_return("pass")
         PG.should_receive(:connect).with(hash_including(user: "user", password: "pass"))
-        subject.class.new(database, table)
+        subject
       end
 
       it "should connect to the right database" do
         PG.should_receive(:connect).with(hash_including(dbname: database))
-        subject.class.new(database, table)
+        subject
       end
 
       it "should fail hard on DB connection errors (Sinatra should handle it)" do
         PG.should_receive(:connect).and_raise(PG::Error)
-        lambda { subject.class.new(database, table) }.should raise_error(PG::Error)
+        lambda { subject }.should raise_error(PG::Error)
       end
 
     end
 
     describe "#find" do
-
-      before(:each) do
-        connection.stub(:exec).with(/column_name/).and_return([
-          { :column_name => "id", :udt_name => "integer" },
-          { :column_name => "groupid", :udt_name => "int4" },
-          { :column_name => "name", :udt_name => "varchar" },
-          { :column_name => "the_geom", :udt_name => "geometry" }
-        ])
-      end
 
       context "no results" do
         it "should render GeoJSON" do

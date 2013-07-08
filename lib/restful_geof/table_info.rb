@@ -4,6 +4,7 @@ module RestfulGeof
 
     def initialize(column_info)
       @column_info = column_info
+      id_column or raise("No id column could be identified among #{normal_columns.inspect}!")
     end
 
     def geometry_column
@@ -24,9 +25,7 @@ module RestfulGeof
     end
 
     def id_column
-      (normal_columns & %w{id ogc_fid ogr_fid fid}).first or
-        integer_columns.first or
-        raise("No id column could be identified among #{normal_columns.inspect}!")
+      (normal_columns & %w{id ogc_fid ogr_fid fid}).first or integer_columns.first
     end
 
     private

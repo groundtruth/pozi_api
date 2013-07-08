@@ -25,6 +25,12 @@ module RestfulGeof
       subject_without(%w{ogc_fid ogr_fid fid anothernum})
     }
 
+    describe "#initialize" do
+      it "should raise an error if no id column could be detected" do
+        expect{ subject_without(%w{id ogc_fid ogr_fid fid bignum anothernum}) }.to raise_error()
+      end
+    end
+
     describe "#tsvector_columns" do
       it "should identify any columns" do
         normal_subject.tsvector_columns.should == ["search_text_one", "search_text_two"]
@@ -68,9 +74,6 @@ module RestfulGeof
       end
       it "should choose the first integer column if no id, ogc_fid, ogr_fid or fid" do
         subject_without(%w{id ogc_fid ogr_fid fid}).id_column.should == "bignum"
-      end
-      it "should raise an error if no id column could be detected" do
-        expect{ subject_without(%w{id ogc_fid ogr_fid fid bignum anothernum}).id_column }.to raise_error()
       end
     end
 
