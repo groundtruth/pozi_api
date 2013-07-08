@@ -24,19 +24,9 @@ module RestfulGeof
     end
 
     def id_column
-      if normal_columns.include?("id")
-        "id"
-      elsif normal_columns.include?("ogc_fid")
-        "ogc_fid"
-      elsif normal_columns.include?("ogr_fid")
-        "ogr_fid"
-      elsif normal_columns.include?("fid")
-        "fid"
-      elsif integer_columns.length > 0
-        integer_columns.first
-      else
-        raise "No id column could be identified among #{normal_columns.inspect}!"
-      end
+      (normal_columns & %w{id ogc_fid ogr_fid fid}).first or
+        integer_columns.first or
+        raise("No id column could be identified among #{normal_columns.inspect}!")
     end
 
     private
