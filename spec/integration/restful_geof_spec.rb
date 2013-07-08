@@ -221,6 +221,14 @@ module RestfulGeof
         })
       end
 
+      it "should return empty collection if ID not found" do
+        get "/restful_geof_test/spatial/666"
+        last_response.body.should match_json_expression({
+          "type" => "FeatureCollection",
+          "features" => []
+        })
+      end
+
     end
 
   end
