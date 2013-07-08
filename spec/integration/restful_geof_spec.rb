@@ -221,12 +221,23 @@ module RestfulGeof
         })
       end
 
-      it "should return empty collection if ID not found" do
-        get "/restful_geof_test/spatial/666"
-        last_response.body.should match_json_expression({
-          "type" => "FeatureCollection",
-          "features" => []
-        })
+      context "when ID does not exist" do
+
+        before :each do
+          get "/restful_geof_test/spatial/666"
+        end
+
+        it "should have 401 Not Found status code" do
+          last_response.status.should == 404
+        end
+
+        it "should have empty collection as response body" do
+          last_response.body.should match_json_expression({
+            "type" => "FeatureCollection",
+            "features" => []
+          })
+        end
+
       end
 
     end

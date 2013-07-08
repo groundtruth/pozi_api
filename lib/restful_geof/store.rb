@@ -38,7 +38,12 @@ module RestfulGeof
       query = with_normal_and_geo_selects(Query.new).
         where("#{ esc_i @table_info.id_column } = #{ i_or_quoted_s_for(id, @table_info.id_column) }").
         from(esc_i @table_name)
-      as_feature_collection(@connection.exec(query.to_sql).to_a)
+      results = as_feature_collection(@connection.exec(query.to_sql).to_a)
+      if results["features"].count > 0
+        results.to_json
+      else
+        [404, results.to_json]
+      end
     end
 
     def find(conditions={})
@@ -72,7 +77,7 @@ module RestfulGeof
 
       query.limit conditions[:limit]
 
-      as_feature_collection(@connection.exec(query.to_sql).to_a)
+      as_feature_collection(@connection.exec(query.to_sql).to_a).to_json
     end
 
     def update
@@ -118,7 +123,7 @@ module RestfulGeof
             end
           )
         end
-      }.to_json
+      }
     end
 
   end
