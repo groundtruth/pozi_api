@@ -207,17 +207,12 @@ module RestfulGeof
       it "should read a specific record by ID" do
         get "/restful_geof_test/spatial/2"
         last_response.body.should match_json_expression({
-          "type" => "FeatureCollection",
-          "features" => [
-            {
-              "type" => "Feature", "properties" => { "id" => 2, "name" => "second" },
-              "geometry" => {
-                "type" => "Point", 
-                "crs"=> { "type"=>"name", "properties"=> { "name" => "EPSG:4326" } },
-                "coordinates" => [around(143.584379916592), around(-38.3419002991608)]
-              }
-            },
-          ]
+          "type" => "Feature", "properties" => { "id" => 2, "name" => "second" },
+          "geometry" => {
+            "type" => "Point", 
+            "crs"=> { "type"=>"name", "properties"=> { "name" => "EPSG:4326" } },
+            "coordinates" => [around(143.584379916592), around(-38.3419002991608)]
+          }
         })
       end
 
@@ -227,15 +222,12 @@ module RestfulGeof
           get "/restful_geof_test/spatial/666"
         end
 
-        it "should have 401 Not Found status code" do
+        it "should have 404 Not Found status code" do
           last_response.status.should == 404
         end
 
         it "should have empty collection as response body" do
-          last_response.body.should match_json_expression({
-            "type" => "FeatureCollection",
-            "features" => []
-          })
+          last_response.body.should == "{}"
         end
 
       end

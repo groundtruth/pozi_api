@@ -38,11 +38,11 @@ module RestfulGeof
       query = with_normal_and_geo_selects(Query.new).
         where("#{ esc_i @table_info.id_column } = #{ i_or_quoted_s_for(id, @table_info.id_column) }").
         from(esc_i @table_name)
-      results = as_feature_collection(@connection.exec(query.to_sql).to_a)
-      if results["features"].count > 0
-        results.to_json
+      results = @connection.exec(query.to_sql).to_a
+      if results.count == 1
+        as_feature(results.first).to_json
       else
-        [404, results.to_json]
+        [404, {}.to_json]
       end
     end
 
@@ -106,23 +106,25 @@ module RestfulGeof
       query
     end
 
+    def as_feature(result)
+      {
+        "type" => "Feature",
+        "properties" => result.select { |k,v| k != :geometry_geojson }
+      }.merge(
+        begin
+          if result[:geometry_geojson].to_s.empty?
+            {}
+          else
+            { "geometry" => JSON.parse(result[:geometry_geojson]) }
+          end
+        end
+      )
+    end
+
     def as_feature_collection(results)
       {
         "type" => "FeatureCollection",
-        "features" => results.to_a.map do |row|
-          {
-            "type" => "Feature",
-            "properties" => row.select { |k,v| k != :geometry_geojson }
-          }.merge(
-            begin
-              if row[:geometry_geojson].to_s.empty?
-                {}
-              else
-                { "geometry" => JSON.parse(row[:geometry_geojson]) }
-              end
-            end
-          )
-        end
+        "features" => results.map { |result| as_feature(result) }
       }
     end
 
