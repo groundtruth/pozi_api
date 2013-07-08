@@ -35,7 +35,7 @@ module RestfulGeof
     end
 
     def read(id)
-      query = Query.new.
+      query = with_normal_and_geo_selects(Query.new).
         where("#{ esc_i @table_info.id_column } = #{ i_or_quoted_s_for(id, @table_info.id_column) }").
         from(esc_i @table_name)
       as_feature_collection(@connection.exec(query.to_sql).to_a)
@@ -46,10 +46,7 @@ module RestfulGeof
       conditions[:contains] ||= {}
       conditions[:matches] ||= {}
 
-      query = Query.new
-
-      query.select(@table_info.normal_columns)
-      query.select("ST_AsGeoJSON(ST_Transform(#{@table_info.geometry_column}, 4326), 15, 2) AS geometry_geojson") if @table_info.geometry_column
+      query = with_normal_and_geo_selects(Query.new)
 
       query.from(esc_i @table_name)
 
@@ -96,6 +93,12 @@ module RestfulGeof
 
     def i_or_quoted_s_for value, field
       @table_info.integer_col?(field) ? Integer(value).to_s : "'#{ esc_s value }'"
+    end
+
+    def with_normal_and_geo_selects(query)
+      query.select(@table_info.normal_columns)
+      query.select("ST_AsGeoJSON(ST_Transform(#{@table_info.geometry_column}, 4326), 15, 2) AS geometry_geojson") if @table_info.geometry_column
+      query
     end
 
     def as_feature_collection(results)

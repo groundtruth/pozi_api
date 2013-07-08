@@ -72,7 +72,7 @@ module RestfulGeof
 
       context "no results" do
         it "should render GeoJSON" do
-          connection.should_receive(:exec).with(/the_geom/).and_return([])
+          connection.should_receive(:exec).with(/geometry_geojson/).and_return([])
           find_result = Store.new(database, table).find
           JSON.parse(find_result).should == { "type" => "FeatureCollection", "features" => [] }
         end
@@ -81,7 +81,7 @@ module RestfulGeof
       context "with results" do
 
         it "should render GeoJSON (for results with or without geometries)" do
-          connection.should_receive(:exec).with(/the_geom/).and_return([
+          connection.should_receive(:exec).with(/geometry_geojson/).and_return([
             { :id => 11, :name => "somewhere", :geometry_geojson => nil },
             { :id => 22, :name => "big one", :geometry_geojson => '{"type":"Point","coordinates":[145.716104000000001,-38.097603999999997]}' }
           ])
@@ -143,10 +143,10 @@ module RestfulGeof
     describe "#read" do
 
       it "should select the correct record and render it in GeoJSON" do
-        connection.should_receive(:exec).with(/WHERE id = 22/).and_return([
+        connection.should_receive(:exec).with(/geometry_geojson.*WHERE id = 22/m).and_return([
           { :id => 22, :name => "big one", :geometry_geojson => '{"type":"Point","coordinates":[145.716104000000001,-38.097603999999997]}' }
         ])
-        JSON.parse(subject.read(22)).should == {
+        JSON.parse(subject.read("22")).should == {
           "type" => "FeatureCollection",
           "features" => [
             {

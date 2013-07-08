@@ -205,7 +205,6 @@ module RestfulGeof
     describe "reading" do
 
       it "should read a specific record by ID" do
-        pending
         get "/restful_geof_test/spatial/2"
         last_response.body.should match_json_expression({
           "type" => "FeatureCollection",
