@@ -17,57 +17,60 @@ module RestfulGeof
       { :column_name => "anothernum", :udt_name => "integer" }
     ]}
 
-    subject { TableInfo.new(column_info[0..5]) }
+    def subject_without(other_cols=[])
+      TableInfo.new(column_info.reject { |col| other_cols.include?(col[:column_name]) })
+    end
+
+    let(:normal_subject) {
+      subject_without(%w{ogc_fid ogr_fid fid anothernum})
+    }
 
     describe "#tsvector_columns" do
       it "should identify any columns" do
-        subject.tsvector_columns.should == ["search_text_one", "search_text_two"]
+        normal_subject.tsvector_columns.should == ["search_text_one", "search_text_two"]
       end
     end
 
     describe "#geometry_column" do
       it "should identify the (first) geometry column" do
-        subject.geometry_column.should == "the_geom"
+        normal_subject.geometry_column.should == "the_geom"
       end
     end
 
     describe "#normal_columns" do
       it "should identify normal columns for shoing in properties part of GeoJSON" do
-        subject.normal_columns.should == ["id", "name", "bignum"]
+        normal_subject.normal_columns.should == ["id", "name", "bignum"]
       end
     end
 
     describe "#integer_col?" do
       it "should return true if the column is any integer type" do
-        subject.integer_col?("id").should be_true
-        subject.integer_col?("bignum").should be_true
+        normal_subject.integer_col?("id").should be_true
+        normal_subject.integer_col?("bignum").should be_true
       end
       it "should return false if the column is not an integer type" do
-        subject.integer_col?("name").should be_false
+        normal_subject.integer_col?("name").should be_false
       end
     end
 
     describe "#id_column" do
-      def info_without(cols)
-        TableInfo.new(column_info.reject { |c| cols.include?(c[:column_name]) })
-      end
       it "should choose a column named id, first" do
-        info_without([]).id_column.should == "id"
+        subject_without([]).id_column.should == "id"
       end
       it "should choose a column named ogc_fid, if no id" do
-        info_without(%w{id}).id_column.should == "ogc_fid"
+        subject_without(%w{id}).id_column.should == "ogc_fid"
       end
       it "should choose a column named ogr_fid, if no id or ogc_fid" do
-        info_without(%w{id ogc_fid}).id_column.should == "ogr_fid"
+        subject_without(%w{id ogc_fid}).id_column.should == "ogr_fid"
       end
       it "should choose a column named fid, if no id, ogc_fid or ogr_fid" do
-        info_without(%w{id ogc_fid ogr_fid}).id_column.should == "fid"
+        subject_without(%w{id ogc_fid ogr_fid}).id_column.should == "fid"
       end
       it "should choose the first integer column if no id, ogc_fid, ogr_fid or fid" do
-        info_without(%w{id ogc_fid ogr_fid fid}).id_column.should == "bignum"
+        subject_without(%w{id ogc_fid ogr_fid fid}).id_column.should == "bignum"
       end
       it "should raise an error if no id column could be detected" do
-        expect{ info_without(%w{id ogc_fid ogr_fid fid bignum anothernum}).id_column }.to raise_error()
+        expect{ subject_without(%w{id ogc_fid ogr_fid fid bignum anothernum}).id_column }.to raise_error()
       end
     end
 
