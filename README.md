@@ -40,9 +40,14 @@ RestfulGeof works with PostgreSQL and the PostGIS extension. You'll need
 to [install these](http://postgis.net/install/) or use a
 [hosted instance](https://www.google.com/search?name=f&hl=en&q=hosted+postgis).
 
-The database table or tables made available by RestfulGeof may have a geometry
-column (none is okay, additional geometry columns will be ignored). This must
-be a geometry column, not a geography column.
+The database table or tables made available by RestfulGeof must have an ID
+column. RestfulGeof will look for a column named `id`, `ogc_fid`, `ogr_fid`,
+or `fid`, or for the first integer column, and will use the first one it finds
+as the ID column. RestfulGeof does not allocate new ID values - this should be
+handled by database constraints.
+
+There may be a geometry column (none is okay, additional geometry columns will
+be ignored). This must be a geometry column, not a geography column.
 
 RestfulGeof can read colums of any SRID and will automatically transform them
 for presentation in WGS84 (EPSG:4326).
@@ -118,24 +123,58 @@ Here are a some examples:
     /citydb/addresses/collection_day/is/Monday/report/matches/broken/limit/1000
 
 
+## CRUD
+
+Read a specific record by performing a `GET` request of the form:
+
+    /{database}/{table}/{id}
+
+For example:
+
+    /citydb/properties/223423
+
+This will return the result as a single GeoJSON `Feature` (or HTTP status 404
+if a record could not be identified).
+
+Create, update and delete functions are yet to be implemented.
+
+
 ## Planned functionality
 
-* Accept database authentication credentials from HTTP headers.
-* Read an individual feature by ID (e.g. `GET /database/table/22`).
-* Find features closest to a point, or within a bounding box.
 * Create new features.
 * Update existing features.
 * Delete existing features.
+* Find features closest to a point, or within a bounding box.
+* Accept database authentication credentials from HTTP headers.
+* Extend README with an example of running RestfulGeof on Heroku.
 * Return results in a JSONP wrapper.
 * Built-in CORS support.
 * Allow limit condition earlier in the request URL.
-* Extend README with an example of running RestfulGeof on Heroku.
 
 
 ## Copyright
 
-RestfulGeof was created by [Groundtruth](http://groundtruth.com.au/)
-and is offered under the [MIT License](http://opensource.org/licenses/MIT).
+The [MIT License](http://opensource.org/licenses/MIT) (MIT)
+
+Copyright (c) 2013 [Groundtruth](http://groundtruth.com.au/)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
 
 Comments and contributions are welcome.
 
