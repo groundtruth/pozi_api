@@ -1,5 +1,6 @@
 require "spec_helper"
 require "restful_geof/store"
+require "restful_geof/sql/query"
 require "json"
 
 module RestfulGeof
@@ -25,7 +26,7 @@ module RestfulGeof
       connection.stub(:escape_identifier) { |str| str }
       connection.stub(:exec).with(/information_schema\.columns/).and_return(column_info)
       TableInfo.stub(:new).with(column_info).and_call_original
-      Query.stub(:new).and_call_original
+      SQL::Query.stub(:new).and_call_original
     end
 
     describe "#initialize" do
@@ -147,6 +148,27 @@ module RestfulGeof
           { :id => 22, :name => "big one", :geometry_geojson => '{"type":"Point","coordinates":[145.716104000000001,-38.097603999999997]}' }
         ])
         JSON.parse(subject.read("22")).should == {
+          "type" => "Feature",
+          "properties" => { "id" => 22, "name" => "big one" },
+          "geometry" => { "type" => "Point", "coordinates" => [145.716104, -38.097604] }
+        }
+      end
+
+    end
+
+    describe "#create" do
+      let(:feature_without_id) {{
+        "type" => "Feature",
+        "properties" => { "name" => "big one" },
+        "geometry" => { "type" => "Point", "coordinates" => [145.716104, -38.097604] }
+      }}
+
+      it "should insert the record and return it (with ID) in GeoJSON" do
+        pending
+        connection.should_receive(:exec).with(/INSERT/m).and_return([
+          { :id => 22, :name => "big one", :geometry_geojson => '{"type":"Point","coordinates":[145.716104000000001,-38.097603999999997]}' }
+        ])
+        JSON.parse(subject.create("22")).should == {
           "type" => "Feature",
           "properties" => { "id" => 22, "name" => "big one" },
           "geometry" => { "type" => "Point", "coordinates" => [145.716104, -38.097604] }

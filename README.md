@@ -32,6 +32,9 @@ The integration tests assume there is a local database with PostGIS that can
 be accessed as the current user, without a password, and that `psql` is on the
 path.
 
+RestfulGeof uses the RGeo gem, which depends on GEOS and Proj.
+More info [on the RGeo page](https://github.com/dazuma/rgeo#dependencies).
+
 It is built for Ruby 1.9.
 
 ### Database

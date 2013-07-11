@@ -3,6 +3,8 @@ source "http://rubygems.org"
 gem "sinatra"
 gem "pg"
 gem "pg_typecast"
+gem "rgeo"
+gem "rgeo-geojson"
 
 group :test do
   gem "rake"

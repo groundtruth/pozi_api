@@ -3,7 +3,7 @@ require "pg_typecast"
 require "json"
 
 require "restful_geof/table_info"
-require "restful_geof/query"
+require "restful_geof/sql/query"
 
 module RestfulGeof
 
@@ -21,7 +21,7 @@ module RestfulGeof
 
       @table_info = TableInfo.new(
         @connection.exec(
-          Query.new.
+          SQL::Query.new.
             select("column_name", "udt_name").
             from("information_schema.columns").
             where("table_catalog = '#{ esc_s @connection.db }'").
@@ -35,7 +35,7 @@ module RestfulGeof
     end
 
     def read(id)
-      query = with_normal_and_geo_selects(Query.new).
+      query = with_normal_and_geo_selects(SQL::Query.new).
         where("#{ esc_i @table_info.id_column } = #{ i_or_quoted_s_for(id, @table_info.id_column) }").
         from(esc_i @table_name)
       results = @connection.exec(query.to_sql).to_a
@@ -51,7 +51,7 @@ module RestfulGeof
       conditions[:contains] ||= {}
       conditions[:matches] ||= {}
 
-      query = with_normal_and_geo_selects(Query.new)
+      query = with_normal_and_geo_selects(SQL::Query.new)
 
       query.from(esc_i @table_name)
 

@@ -19,6 +19,19 @@ module RestfulGeof
           Store.stub(:new).and_return(store)
         end
 
+        describe "create action" do
+
+          let(:feature_json) { '{ "some": "GeoJSON" }' }
+          let(:request) { mock(request_method: "POST", path_info: "/mydb/mytable", body: feature_json) }
+
+          it "should make the correct call" do
+            result = mock("result")
+            store.should_receive(:create).with(feature_json).and_return(result)
+            subject.route(request).should == result
+          end
+
+        end
+        
         describe "read action" do
 
           let(:request) { mock(request_method: "GET", path_info: "/mydb/mytable/22") }
@@ -43,7 +56,7 @@ module RestfulGeof
           end
 
         end
-        
+
         describe "query actions" do
           
           it "should handle basic read requests, returning the result" do
