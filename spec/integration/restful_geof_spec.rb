@@ -255,6 +255,7 @@ module RestfulGeof
         second_id.should >= first_id
       end
 
+      it "should return the right geometry"
       it "should save the record permanently, so it can be read back"
       it "should work with multiple features"
 
