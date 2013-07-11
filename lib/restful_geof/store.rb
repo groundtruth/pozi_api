@@ -2,6 +2,9 @@ require "pg"
 require "pg_typecast"
 require "json"
 
+require "rgeo"
+require "rgeo/geo_json"
+
 require "restful_geof/table_info"
 require "restful_geof/sql/query"
 
@@ -30,8 +33,18 @@ module RestfulGeof
       )
     end
 
-
-    def create
+    def create(data)
+      feature = RGeo::GeoJSON.decode(data.read, :json_parser => :json)
+      properties = Hash[feature.properties.map { |k,v| [esc_i(k), i_or_quoted_s_for(v, k)] }]
+      fields = properties.keys + [esc_i(@table_info.geometry_column)]
+      values = properties.values + ["ST_GeomFromText('#{ feature.geometry.as_text }', 4326)"]
+      query_sql = <<-END_SQL
+        INSERT into #{ esc_i @table_name }(#{ fields.join(", ") })
+        VALUES (#{ values.join(", ") })
+        RETURNING *;
+      END_SQL
+      results = @connection.exec(query_sql).to_a
+      as_feature(results.first).to_json
     end
 
     def read(id)

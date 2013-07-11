@@ -3,7 +3,10 @@ require "restful_geof/routes"
 
 module RestfulGeof
   class App < Sinatra::Base
-    configure { set :raise_errors, false } # fail hard and let Sintra handle it, in all environments
+    configure do
+      set :raise_errors, true
+      set :show_exceptions, false
+    end
     post(//) { Routes.route(request) }
     get(//) { Routes.route(request) }
     put(//) { Routes.route(request) }

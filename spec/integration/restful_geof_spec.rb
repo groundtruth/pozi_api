@@ -68,6 +68,7 @@ module RestfulGeof
       end
 
       it "should return a HTTP error code if there is a database error" do
+        pending "better error handling"
         get "/restful_geof_test/bad_table_name"
         last_response.should_not be_ok
       end
@@ -245,14 +246,13 @@ module RestfulGeof
       }.to_json}
 
       it "should should return the record with a new ID" do
-        pending
         post "/restful_geof_test/spatial", new_feature_json
         first_id = JSON.parse(last_response.body)["properties"]["id"]
         post "/restful_geof_test/spatial", new_feature_json
         second_id = JSON.parse(last_response.body)["properties"]["id"]
         first_id.class.should == Fixnum
         second_id.class.should == Fixnum
-        second_id.should be_greater_than(first_id)
+        second_id.should >= first_id
       end
 
       it "should save the record permanently, so it can be read back"
