@@ -57,7 +57,7 @@ module RestfulGeof
         database = URI.unescape $~[:database].to_s
         table = URI.unescape $~[:table].to_s
 
-        return Store.new(database, table).create(request.body)
+        return Store.new(database, table).create(request.body.read)
 
       end
 

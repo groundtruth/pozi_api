@@ -1,6 +1,8 @@
 require "spec_helper"
 require "restful_geof/routes"
 
+require "stringio"
+
 module RestfulGeof
   describe Routes do
     describe ".route" do
@@ -22,7 +24,11 @@ module RestfulGeof
         describe "create action" do
 
           let(:feature_json) { '{ "some": "GeoJSON" }' }
-          let(:request) { mock(request_method: "POST", path_info: "/mydb/mytable", body: feature_json) }
+          let(:request) { mock(
+            request_method: "POST",
+            path_info: "/mydb/mytable",
+            body: StringIO.new(feature_json)
+          ) }
 
           it "should make the correct call" do
             result = mock("result")

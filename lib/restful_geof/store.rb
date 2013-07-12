@@ -34,7 +34,7 @@ module RestfulGeof
     end
 
     def create(data)
-      feature = RGeo::GeoJSON.decode(data.read, :json_parser => :json)
+      feature = RGeo::GeoJSON.decode(data, :json_parser => :json)
       properties = Hash[feature.properties.map { |k,v| [esc_i(k), i_or_quoted_s_for(v, k)] }]
       fields = properties.keys + [esc_i(@table_info.geometry_column)]
       values = properties.values + ["ST_GeomFromText('#{ feature.geometry.as_text }', 4326)"]
