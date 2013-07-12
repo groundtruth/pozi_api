@@ -82,10 +82,6 @@ use [Unicorn](http://unicorn.bogomips.org):
 You will probably want to use `config.ru` and/or your front-end web server
 to add a prefix to the URL from which ResftfulGeof is served.
 
-Note that RestfulGeof does not currently handle exceptions very gracefully.
-Running in development mode will activate Sinatra's more verbose exception
-handling, but may have drawbacks that make it inappropriate for your situation.
-
 
 ## Querying
 
