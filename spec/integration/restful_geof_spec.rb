@@ -255,8 +255,20 @@ module RestfulGeof
         second_id.should >= first_id
       end
 
-      it "should return the right geometry"
+      it "should return the correct geometry" do
+        post "/restful_geof_test/spatial", new_feature_json
+        last_response.body.should match_json_expression({
+          "type" => "Feature", "properties" => { "id" => Fixnum, "name" => "new point" },
+          "geometry" => {
+            "type" => "Point", 
+            "crs"=> { "type"=>"name", "properties"=> { "name" => "EPSG:4326" } },
+            "coordinates" => [around(143.584379916592), around(-38.3419002991608)]
+          }
+        })
+      end
+
       it "should save the record permanently, so it can be read back"
+      it "should reject GeoJSON not in EPSG:4326"
       it "should work with multiple features"
 
     end
