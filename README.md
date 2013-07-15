@@ -95,6 +95,7 @@ Where `{conditions}` are one, or several (`/` separated) of the following:
     {field}/is/{value}
     {field}/contains/{value}
     {field}/matches/{value}
+    closest/{longitude}/{latitude}
 
 The `is` conditions will match a given field exactly (with ` = `). The value
 part of an `is` condition will be cast to an integer if the database column
@@ -113,16 +114,29 @@ match (with ` @@ `). The value given will be cast to a `tsquery` using
 `plainto_tsquery()`. To allow for autocomplete functionality, the query is
 adjusted so that the final search term can match as a prefix.
 
+A `closest` condition will order found features by distance from the given
+point. This is best used in conjunction with a limit.
+
 Here are a some examples:
 
     /citydb/offices
     /citydb/addresses/limit/1000
+    /citydb/addresses/limit/1000
+    /citydb/addresses/closest/141.584379916592/-36.3419002991608/limit/20
     /citydb/addresses/propertyid/is/2340982
     /citydb/addresses/full_address/contains/22%20high/limit/10
     /citydb/addresses/collection_day/is/Monday/report/matches/broken/limit/1000
 
 
 ## CRUD
+
+Create a new record by doing a `POST` to:
+
+    /{database}/{table}
+
+with a single GeoJSON `Feature` as the request body. The created record will
+be returned (including additional fields, such as an ID) if the action was
+successful.
 
 Read a specific record by performing a `GET` request of the form:
 
@@ -135,7 +149,11 @@ For example:
 This will return the result as a single GeoJSON `Feature` (or HTTP status 404
 if a record could not be identified).
 
-Create, update and delete functions are yet to be implemented.
+A record can be updated by doing a `PUT` request to the same URL. The
+body should be a full GeoJSON `Feature` (not just fields to be modified).
+
+A `DELETE` request with no body will delete a record, and return a status
+code of 204 if the action was successful.
 
 
 ## Planned functionality

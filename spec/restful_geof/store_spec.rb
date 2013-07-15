@@ -109,6 +109,10 @@ module RestfulGeof
             subject.find({ :limit => 22 })
           end
 
+          it "should include 'closest' conditions" do
+            pending
+          end
+
           it "should include 'is' conditions with integer values" do
             # connection.should_receive(:exec).with{ |sql| sql.should match(/groupid = 22/) }
             connection.should_receive(:exec).with(/groupid = 22/)

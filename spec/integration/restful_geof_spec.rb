@@ -33,7 +33,7 @@ module RestfulGeof
               "geometry" => {
                 "type" => "Point", 
                 "crs"=> { "type"=>"name", "properties"=> { "name" => "EPSG:4326" } },
-                "coordinates" => [around(143.584379916592), around(-38.3419002991608)]
+                "coordinates" => [around(140.584379916592), around(-35.3419002991608)]
               }
             },
             {
@@ -41,7 +41,7 @@ module RestfulGeof
               "geometry" => {
                 "type" => "Point", 
                 "crs"=> { "type"=>"name", "properties"=> { "name" => "EPSG:4326" } },
-                "coordinates" => [around(143.584379916592), around(-38.3419002991608)]
+                "coordinates" => [around(141.584379916592), around(-36.3419002991608)]
               }
             },
             {
@@ -49,7 +49,7 @@ module RestfulGeof
               "geometry" => {
                 "type" => "Point", 
                 "crs"=> { "type"=>"name", "properties"=> { "name" => "EPSG:4326" } },
-                "coordinates" => [around(143.584379916592), around(-38.3419002991608)]
+                "coordinates" => [around(142.584379916592), around(-37.3419002991608)]
               }
             },
             {
@@ -115,6 +115,50 @@ module RestfulGeof
             "type" => "FeatureCollection",
             "features" => [wildcard_matcher, wildcard_matcher]
           })
+        end
+
+        describe "'closest' conditions" do
+
+          it "should get the closest" do
+            get "/restful_geof_test/spatial/closest/141.584379916592/-36.3419002991608/limit/1"
+            last_response.body.should match_json_expression({
+              "type" => "FeatureCollection",
+              "features" => [{
+                "type" => "Feature", "properties" => { "id" => 2, "name" => "second" },
+                "geometry" => {
+                  "type" => "Point", 
+                  "crs"=> { "type"=>"name", "properties"=> { "name" => "EPSG:4326" } },
+                  "coordinates" => [around(141.584379916592), around(-36.3419002991608)]
+                }
+              }]
+            })
+          end
+
+          it "should order results by distance from the specified point" do
+            get "/restful_geof_test/spatial/closest/143.584379916592/-38.3419002991608/limit/2"
+            last_response.body.should match_json_expression({
+              "type" => "FeatureCollection",
+              "features" => [
+                {
+                  "type" => "Feature", "properties" => { "id" => 4, "name" => "123" },
+                  "geometry" => {
+                    "type" => "Point", 
+                    "crs"=> { "type"=>"name", "properties"=> { "name" => "EPSG:4326" } },
+                    "coordinates" => [around(143.584379916592), around(-38.3419002991608)]
+                  }
+                },
+                {
+                  "type" => "Feature", "properties" => { "id" => 3, "name" => "third" },
+                  "geometry" => {
+                    "type" => "Point", 
+                    "crs"=> { "type"=>"name", "properties"=> { "name" => "EPSG:4326" } },
+                    "coordinates" => [around(142.584379916592), around(-37.3419002991608)]
+                  }
+                }
+              ]
+            })
+          end
+
         end
 
         describe "'is' conditions" do
@@ -212,7 +256,7 @@ module RestfulGeof
           "geometry" => {
             "type" => "Point", 
             "crs"=> { "type"=>"name", "properties"=> { "name" => "EPSG:4326" } },
-            "coordinates" => [around(143.584379916592), around(-38.3419002991608)]
+            "coordinates" => [around(141.584379916592), around(-36.3419002991608)]
           }
         })
       end

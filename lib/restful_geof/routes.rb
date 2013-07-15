@@ -10,7 +10,7 @@ module RestfulGeof
         ^
         /(?<database>[^/]+)
         /(?<table>[^/]+)
-        (?<conditions_string>(/[^/]+/(is|matches|contains)/[^/]+)*)
+        (?<conditions_string>(/[^/]+/[^/]+/[^/]+)*)
         (/limit/(?<limit>\d+))?
         $
       }x)
@@ -18,17 +18,18 @@ module RestfulGeof
         database = URI.unescape $~[:database].to_s
         table = URI.unescape $~[:table].to_s
         limit = URI.unescape $~[:limit].to_s
-        conditions = $~[:conditions_string].to_s.scan(%r{
-          /(?<field>[^/]+)
-          /(?<operator>is|matches|contains)
-          /(?<value>[^/]+)
-        }x)
+        conditions = $~[:conditions_string].to_s.scan(%r{/(?<part1>[^/]+)/(?<part2>[^/]+)/(?<part3>[^/]+)}x)
 
-        options = { :is => {}, :matches => {}, :contains => {} }
+        options = { :is => {}, :matches => {}, :contains => {}, :closest => {} }
         options[:limit] = limit.to_i unless limit.empty?
         conditions.each do |condition|
-          field, operator, value = condition.map { |str| URI.unescape str }
-          options[operator.to_sym][field] = value
+          part1, part2, part3 = condition.map { |str| URI.unescape str }
+          if %w{is matches contains}.include?(part2)
+            options[part2.to_sym][part1] = part3
+          elsif part1 == "closest"
+            options[:closest][:lon] = part2
+            options[:closest][:lat] = part3
+          end
         end
 
         return Store.new(database, table).find(options)

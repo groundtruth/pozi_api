@@ -34,10 +34,12 @@ CREATE SEQUENCE spatial_id_seq START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVAL
 ALTER SEQUENCE spatial_id_seq OWNED BY spatial.id;
 ALTER TABLE ONLY spatial ALTER COLUMN id SET DEFAULT nextval('spatial_id_seq'::regclass);
 
-INSERT INTO spatial (the_geom, name, search_text) VALUES ('0101000020E610000074C6823DB3F26140B9B19563C32B43C0', 'first', to_tsvector('english', 'the first one'));
-INSERT INTO spatial (the_geom, name, search_text) VALUES ('0101000020E610000074C6823DB3F26140B9B19563C32B43C0', 'second', to_tsvector('english', 'second comes right after first'));
-INSERT INTO spatial (the_geom, name, search_text) VALUES ('0101000020E610000074C6823DB3F26140B9B19563C32B43C0', 'third', to_tsvector('english', 'the last non-null one is third'));
-INSERT INTO spatial (the_geom, name, search_text) VALUES ('0101000020E610000074C6823DB3F26140B9B19563C32B43C0', '123', to_tsvector('english', 'string field with only digits in it'));
+
+
+INSERT INTO spatial (the_geom, name, search_text) VALUES (ST_GeomFromText('POINT(140.584379916592 -35.3419002991608)', 4326), 'first', to_tsvector('english', 'the first one'));
+INSERT INTO spatial (the_geom, name, search_text) VALUES (ST_GeomFromText('POINT(141.584379916592 -36.3419002991608)', 4326), 'second', to_tsvector('english', 'second comes right after first'));
+INSERT INTO spatial (the_geom, name, search_text) VALUES (ST_GeomFromText('POINT(142.584379916592 -37.3419002991608)', 4326), 'third', to_tsvector('english', 'the last non-null one is third'));
+INSERT INTO spatial (the_geom, name, search_text) VALUES (ST_GeomFromText('POINT(143.584379916592 -38.3419002991608)', 4326), '123', to_tsvector('english', 'string field with only digits in it'));
 INSERT INTO spatial (the_geom, name, search_text) VALUES (NULL, 'no geometry', NULL);
 
 ALTER TABLE ONLY spatial ADD CONSTRAINT pk_spatial PRIMARY KEY (id);

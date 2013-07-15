@@ -100,6 +100,15 @@ module RestfulGeof
 
       query.from(esc_i @table_name)
 
+      if conditions[:closest] && conditions[:closest][:lon] && conditions[:closest][:lat]
+        query.order_by <<-END_CONDITION
+          ST_Distance(
+            ST_Transform(#{@table_info.geometry_column}, 4326), 
+            ST_GeomFromText('POINT(#{ Float(conditions[:closest][:lon]) } #{ Float(conditions[:closest][:lat]) })', 4326)
+          )
+        END_CONDITION
+      end
+
       conditions[:is].each do |field, value|
         query.where "#{ esc_i field } = #{ i_or_quoted_s_for(value, field) }"
       end

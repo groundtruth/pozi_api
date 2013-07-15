@@ -99,6 +99,10 @@ module RestfulGeof
             subject.route(request)
           end
 
+          it "should get closest conditions" do
+            pending
+          end
+
           it "should get limit conditions" do
             request = mock(request_method: "GET", path_info: "/mydb/mytable/groupid/is/2/name/matches/mr%20ed/limit/3")
             store.should_receive(:find).with(hash_including(limit: 3))
