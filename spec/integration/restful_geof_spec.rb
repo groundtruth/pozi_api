@@ -267,7 +267,20 @@ module RestfulGeof
         })
       end
 
-      it "should save the record permanently, so it can be read back"
+      it "should save the record permanently, so it can be read back" do
+        post "/restful_geof_test/spatial", new_feature_json
+        new_id = JSON.parse(last_response.body)["properties"]["id"]
+        get "/restful_geof_test/spatial/#{new_id}"
+        last_response.body.should match_json_expression({
+          "type" => "Feature", "properties" => { "id" => new_id, "name" => "new point" },
+          "geometry" => {
+            "type" => "Point", 
+            "crs"=> { "type"=>"name", "properties"=> { "name" => "EPSG:4326" } },
+            "coordinates" => [around(143.584379916592), around(-38.3419002991608)]
+          }
+        })
+      end
+
       it "should reject GeoJSON not in EPSG:4326"
       it "should work with multiple features"
 
