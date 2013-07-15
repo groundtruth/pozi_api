@@ -156,6 +156,10 @@ module RestfulGeof
 
     end
 
+    describe "#delete" do
+      it "should work"
+    end
+
     describe "#create" do
       let(:feature_without_id) {{
         "type" => "Feature",

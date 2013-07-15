@@ -58,6 +58,19 @@ module RestfulGeof
       end
     end
 
+    def delete(id)
+      query_sql = <<-END_SQL
+        DELETE FROM #{ esc_i @table_name }
+        WHERE #{ esc_i @table_info.id_column } = #{ i_or_quoted_s_for(id, @table_info.id_column) };
+      END_SQL
+      result = @connection.exec(query_sql).cmd_status
+      if result == "DELETE 1"
+        [204, ""] # HTTP 204 No Content: The server successfully processed the request, but is not returning any content
+      else
+        [400, ""] # Don't have any more specific information
+      end
+    end
+
     def find(conditions={})
       conditions[:is] ||= {}
       conditions[:contains] ||= {}
@@ -93,9 +106,6 @@ module RestfulGeof
     end
 
     def update
-    end
-
-    def delete
     end
 
     private

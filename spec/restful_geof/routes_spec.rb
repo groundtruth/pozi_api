@@ -37,6 +37,10 @@ module RestfulGeof
           end
 
         end
+
+        describe "delete action" do
+          it "should work"
+        end
         
         describe "read action" do
 
