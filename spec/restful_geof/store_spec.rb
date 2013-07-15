@@ -153,6 +153,7 @@ module RestfulGeof
           "geometry" => { "type" => "Point", "coordinates" => [145.716104, -38.097604] }
         }
       end
+      it "should handle errors gracefully" # prob don't need to repeat what's in integration spec
 
     end
 
@@ -178,6 +179,7 @@ module RestfulGeof
           "geometry" => { "type" => "Point", "coordinates" => [145.716104, -38.097604] }
         }
       end
+      it "should handle errors gracefully" # prob don't need to repeat what's in integration spec
 
     end
 

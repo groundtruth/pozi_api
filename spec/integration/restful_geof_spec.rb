@@ -281,6 +281,9 @@ module RestfulGeof
         })
       end
 
+      it "should correctly insert into a table with SRID other than EPSG:4326" do
+        pending # maybe this should be done by just adjusting the above examples to use the other_srid table
+      end
       it "should reject GeoJSON not in EPSG:4326"
       it "should work with multiple features"
 
