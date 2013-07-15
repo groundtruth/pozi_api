@@ -73,6 +73,20 @@ module RestfulGeof
 
         return Store.new(database, table).delete(id)
 
+      elsif request.request_method == "PUT" && request.path_info.match(%r{
+        ^
+        /(?<database>[^/]+)
+        /(?<table>[^/]+)
+        /(?<id>[^/]+)
+        $
+      }x)
+
+        database = URI.unescape $~[:database].to_s
+        table = URI.unescape $~[:table].to_s
+        id = URI.unescape($~[:id])
+
+        return Store.new(database, table).update(id, request.body.read)
+
       end
 
       400 # Bad Request

@@ -8,6 +8,7 @@ require "rgeo/geo_json"
 require "restful_geof/table_info"
 require "restful_geof/sql/query"
 require "restful_geof/sql/insert"
+require "restful_geof/sql/update"
 
 module RestfulGeof
 
@@ -38,12 +39,31 @@ module RestfulGeof
       feature = RGeo::GeoJSON.decode(data, :json_parser => :json)
       properties = Hash[feature.properties.map { |k,v| [esc_i(k), i_or_quoted_s_for(v, k)] }]
 
-      insert = with_normal_and_geo_selects(SQL::Insert.new).into(esc_i(@table_name))
-      insert.fields(properties.keys + [esc_i(@table_info.geometry_column)])
-      insert.values(properties.values + ["ST_GeomFromText('#{ feature.geometry.as_text }', 4326)"])
+      insert = with_normal_and_geo_selects(SQL::Insert.new).into(esc_i(@table_name)).
+        fields(properties.keys + [esc_i(@table_info.geometry_column)]).
+        values(properties.values + ["ST_GeomFromText('#{ feature.geometry.as_text }', 4326)"])
 
       results = @connection.exec(insert.to_sql).to_a
       as_feature(results.first).to_json
+    end
+
+    def update(id, data)
+      feature = RGeo::GeoJSON.decode(data, :json_parser => :json)
+      properties = Hash[feature.properties.map { |k,v| [esc_i(k), i_or_quoted_s_for(v, k)] }]
+      return [400, { error: "ID in payload doesn't match ID in URL" }.to_json ] unless feature.properties[@table_info.id_column].to_s == id.to_s
+
+      update = with_normal_and_geo_selects(SQL::Update.new.table(esc_i(@table_name))).
+        fields(properties.keys + [esc_i(@table_info.geometry_column)]).
+        values(properties.values + ["ST_GeomFromText('#{ feature.geometry.as_text }', 4326)"]).
+        where("#{ esc_i @table_info.id_column } = #{ i_or_quoted_s_for(id, @table_info.id_column) }")
+
+      result = @connection.exec(update.to_sql)
+      rows = result.to_a
+      if result.cmd_status == "UPDATE 1" && rows.count == 1
+        as_feature(rows.first).to_json
+      else
+        [400, { error: "Error updating" }.to_json]
+      end
     end
 
     def read(id)
@@ -103,9 +123,6 @@ module RestfulGeof
       query.limit conditions[:limit]
 
       as_feature_collection(@connection.exec(query.to_sql).to_a).to_json
-    end
-
-    def update
     end
 
     private
