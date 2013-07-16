@@ -107,6 +107,12 @@ module RestfulGeof
         })
       end
 
+      it "should be able to read tricky characters from the database" do
+        pending
+        # for example, this character: – 
+        # which isn't like the normal: -
+      end
+
       describe "with conditions" do
 
         it "should handle limits" do
