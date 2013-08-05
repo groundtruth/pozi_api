@@ -1,10 +1,9 @@
 require "uri"
-require "restful_geof/store"
 
 module RestfulGeof
   module Routes
 
-    def self.route(request)
+    def self.parse(request)
 
       if request.request_method == "GET" && request.path_info.match(%r{
         ^
@@ -32,7 +31,12 @@ module RestfulGeof
           end
         end
 
-        return Store.new(database, table).find(options)
+        return {
+          :action => :find,
+          :database => database,
+          :table => table,
+          :options => options
+        }
 
       elsif request.request_method == "GET" && request.path_info.match(%r{
         ^
@@ -46,7 +50,14 @@ module RestfulGeof
         table = URI.unescape $~[:table].to_s
         id = URI.unescape($~[:id])
 
-        return Store.new(database, table).read(id)
+        return {
+          :action => :read,
+          :database => database,
+          :table => table,
+          :options => {
+            :id => id
+          }
+        }
 
       elsif request.request_method == "POST" && request.path_info.match(%r{
         ^
@@ -58,7 +69,14 @@ module RestfulGeof
         database = URI.unescape $~[:database].to_s
         table = URI.unescape $~[:table].to_s
 
-        return Store.new(database, table).create(request.body.read)
+        return {
+          :action => :create,
+          :database => database,
+          :table => table,
+          :options => {
+            :json => request.body.read
+          }
+        }
 
       elsif request.request_method == "DELETE" && request.path_info.match(%r{
         ^
@@ -72,7 +90,14 @@ module RestfulGeof
         table = URI.unescape $~[:table].to_s
         id = URI.unescape($~[:id])
 
-        return Store.new(database, table).delete(id)
+        return {
+          :action => :delete,
+          :database => database,
+          :table => table,
+          :options => {
+            :id => id
+          }
+        }
 
       elsif request.request_method == "PUT" && request.path_info.match(%r{
         ^
@@ -86,11 +111,19 @@ module RestfulGeof
         table = URI.unescape $~[:table].to_s
         id = URI.unescape($~[:id])
 
-        return Store.new(database, table).update(id, request.body.read)
+        return {
+          :action => :update,
+          :database => database,
+          :table => table,
+          :options => {
+            :id => id,
+            :json => request.body.read
+          }
+        }
 
       end
 
-      400 # Bad Request
+      { :action => :unknown }
     end
 
   end
