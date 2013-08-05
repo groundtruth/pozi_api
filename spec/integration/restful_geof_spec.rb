@@ -107,6 +107,22 @@ module RestfulGeof
         })
       end
 
+      it "should wrap the results in a JSONP callback if asked via a 'jsonp' parameter" do
+        pending
+        get "/restful_geof_test/spatial"
+        unwrapped_data = last_response.body
+        get "/restful_geof_test/spatial?jsonp=myHandler"
+        last_response.body.should == "myHandler(#{unwrapped_data});"
+      end
+
+      it "should wrap the results in a JSONP callback if asked via a 'callback' parameter" do
+        pending
+        get "/restful_geof_test/spatial"
+        unwrapped_data = last_response.body
+        get "/restful_geof_test/spatial?callback=myHandler"
+        last_response.body.should == "myHandler(#{unwrapped_data});"
+      end
+
       it "should be able to read tricky characters from the database" do
         pending
         # for example, this character: – 
