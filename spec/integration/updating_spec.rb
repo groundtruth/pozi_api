@@ -7,6 +7,11 @@ module RestfulGeof
     include Rack::Test::Methods
     let(:app) { App }
 
+    before :all do
+      GC.start
+      %x{psql -f #{ROOT_PATH}/spec/resources/seeds.sql -U #{ENV["RESTFUL_GEOF_PG_USERNAME"] || ENV["USER"]}}
+    end
+
     describe "updating" do
 
       before :each do
