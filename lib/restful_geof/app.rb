@@ -1,5 +1,5 @@
 require "sinatra/base"
-require "restful_geof/routes"
+require "restful_geof/controller"
 
 module RestfulGeof
   class App < Sinatra::Base
@@ -7,10 +7,10 @@ module RestfulGeof
       set :raise_errors, true
       set :show_exceptions, false
     end
-    post(//) { Routes.route(request) }
-    get(//) { Routes.route(request) }
-    put(//) { Routes.route(request) }
-    delete(//) { Routes.route(request) }
+    post(//) { Controller.handle(request) }
+    get(//) { Controller.handle(request) }
+    put(//) { Controller.handle(request) }
+    delete(//) { Controller.handle(request) }
     run! if app_file == $0 # start the server if this file is executed directly
   end
 end
