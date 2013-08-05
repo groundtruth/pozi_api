@@ -95,5 +95,6 @@ ALTER TABLE ONLY string_table ALTER COLUMN id SET DEFAULT nextval('string_table_
 
 INSERT INTO string_table (name) VALUES ('1/22 Wills Street');
 INSERT INTO string_table (name) VALUES ('22 Wills St');
+INSERT INTO string_table (name) VALUES ('22 Wills Other St');
 INSERT INTO string_table (name) VALUES ('666 Wrongsideofthe Tracks');
 

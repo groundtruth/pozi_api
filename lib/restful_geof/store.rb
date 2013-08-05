@@ -116,6 +116,7 @@ module RestfulGeof
       conditions[:contains].each do |field, value|
         query.where "#{ esc_i field }::varchar ILIKE '%#{ esc_s value.gsub(/(?=[%_])/, "\\") }%'"
         query.order_by "position(upper('#{ esc_s value }') in upper(#{ esc_i field }::varchar))"
+        query.order_by "#{ esc_i field }::varchar"
       end
 
       conditions[:matches].each do |field, value|

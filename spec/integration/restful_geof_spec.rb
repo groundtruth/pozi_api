@@ -222,17 +222,19 @@ module RestfulGeof
             last_response.body.should match_json_expression({
               "type" => "FeatureCollection",
               "features" => [
+                { "type" => "Feature", "properties" => { "id" => 3, "name" => "22 Wills Other St" } },
                 { "type" => "Feature", "properties" => { "id" => 1, "name" => "1/22 Wills Street" } },
                 { "type" => "Feature", "properties" => { "id" => 2, "name" => "22 Wills St" } }
               ].unordered!
             })
           end
 
-          it "should return results ordered by proximity of matched string to left side" do
+          it "should return results ordered by proximity of matched string to left side, then alphabetical order" do
             get "/restful_geof_test/string_table/name/contains/22%20wills"
             last_response.body.should match_json_expression({
               "type" => "FeatureCollection",
               "features" => [
+                { "type" => "Feature", "properties" => { "id" => 3, "name" => "22 Wills Other St" } },
                 { "type" => "Feature", "properties" => { "id" => 2, "name" => "22 Wills St" } },
                 { "type" => "Feature", "properties" => { "id" => 1, "name" => "1/22 Wills Street" } }
               ].ordered!
