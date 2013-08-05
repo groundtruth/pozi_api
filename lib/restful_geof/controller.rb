@@ -1,4 +1,6 @@
 require "uri"
+
+require "ruby/object"
 require "restful_geof/routes"
 require "restful_geof/store"
 
@@ -8,20 +10,23 @@ module RestfulGeof
     def self.handle(request)
 
       params = Routes.parse(request)
+      action = params[:action]
+      return 400 unless action.is_in?([:find, :read, :create, :delete, :update])
+      store = Store.new(params[:database], params[:table])
+      outcome = store.send(action, params)
 
-      case params[:action]
-      when :find
-        Store.new(params[:database], params[:table]).find(params[:options])
-      when :read
-        Store.new(params[:database], params[:table]).read(params[:options][:id])
-      when :create
-        Store.new(params[:database], params[:table]).create(params[:options][:json])
-      when :delete
-        Store.new(params[:database], params[:table]).delete(params[:options][:id])
-      when :update
-        Store.new(params[:database], params[:table]).update(params[:options][:id], params[:options][:json])
+      if outcome.okay?
+        if outcome.data.empty?
+          [204, ""] # HTTP 204 No Content: The server successfully processed the request, but is not returning any content
+        else
+          [200, outcome.data.to_json]
+        end
       else
-        400 # Bad request
+        if outcome.problem == "Not found"
+          [404, {}.to_json]
+        else
+          [400, { error: outcome.problem }.to_json ]
+        end
       end
 
     end

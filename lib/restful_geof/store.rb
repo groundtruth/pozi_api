@@ -1,3 +1,4 @@
+require "ostruct"
 require "pg"
 require "pg_typecast"
 require "json"
@@ -13,6 +14,15 @@ require "restful_geof/sql/update"
 module RestfulGeof
 
   class Store
+
+    class Outcome
+      def self.good(info={})
+        OpenStruct.new({ okay?: true, data: {} }.merge(info))
+      end
+      def self.bad(info={})
+        OpenStruct.new({ okay?: false, problem: "Unknown" }.merge(info))
+      end
+    end
 
     def initialize(database, table_name)
       options = { dbname: database }
@@ -35,8 +45,8 @@ module RestfulGeof
       )
     end
 
-    def create(data)
-      feature = RGeo::GeoJSON.decode(data, :json_parser => :json)
+    def create(params)
+      feature = RGeo::GeoJSON.decode(params[:body_json], :json_parser => :json)
       properties = Hash[feature.properties.map { |k,v| [esc_i(k), i_or_quoted_s_for(v, k)] }]
 
       insert = with_normal_and_geo_selects(SQL::Insert.new).into(esc_i(@table_name)).
@@ -44,82 +54,85 @@ module RestfulGeof
         values(properties.values + ["ST_GeomFromText('#{ feature.geometry.as_text }', 4326)"])
 
       results = @connection.exec(insert.to_sql).to_a
-      as_feature(results.first).to_json
+      Outcome.good(data: as_feature(results.first))
     end
 
-    def update(id, data)
-      feature = RGeo::GeoJSON.decode(data, :json_parser => :json)
+    def update(params)
+      feature = RGeo::GeoJSON.decode(params[:body_json], :json_parser => :json)
       properties = Hash[feature.properties.map { |k,v| [esc_i(k), i_or_quoted_s_for(v, k)] }]
-      return [400, { error: "ID in payload doesn't match ID in URL" }.to_json ] unless feature.properties[@table_info.id_column].to_s == id.to_s
+
+      unless feature.properties[@table_info.id_column].to_s == params[:id].to_s
+        return Outcome.bad(problem: "ID in payload doesn't match ID in URL")
+      end
 
       update = with_normal_and_geo_selects(SQL::Update.new.table(esc_i(@table_name))).
         fields(properties.keys + [esc_i(@table_info.geometry_column)]).
         values(properties.values + ["ST_GeomFromText('#{ feature.geometry.as_text }', 4326)"]).
-        where("#{ esc_i @table_info.id_column } = #{ i_or_quoted_s_for(id, @table_info.id_column) }")
+        where("#{ esc_i @table_info.id_column } = #{ i_or_quoted_s_for(params[:id], @table_info.id_column) }")
 
       result = @connection.exec(update.to_sql)
       rows = result.to_a
       if result.cmd_status == "UPDATE 1" && rows.count == 1
-        as_feature(rows.first).to_json
+        Outcome.good(data: as_feature(rows.first))
       else
-        [400, { error: "Error updating" }.to_json]
+        Outcome.bad
       end
     end
 
-    def read(id)
+    def read(params)
       query = with_normal_and_geo_selects(SQL::Query.new).
-        where("#{ esc_i @table_info.id_column } = #{ i_or_quoted_s_for(id, @table_info.id_column) }").
+        where("#{ esc_i @table_info.id_column } = #{ i_or_quoted_s_for(params[:id], @table_info.id_column) }").
         from(esc_i @table_name)
       results = @connection.exec(query.to_sql).to_a
       if results.count == 1
-        as_feature(results.first).to_json
+        Outcome.good(data: as_feature(results.first))
       else
-        [404, {}.to_json]
+        Outcome.bad(problem: "Not found")
       end
     end
 
-    def delete(id)
+    def delete(params)
       query_sql = <<-END_SQL
         DELETE FROM #{ esc_i @table_name }
-        WHERE #{ esc_i @table_info.id_column } = #{ i_or_quoted_s_for(id, @table_info.id_column) };
+        WHERE #{ esc_i @table_info.id_column } = #{ i_or_quoted_s_for(params[:id], @table_info.id_column) };
       END_SQL
       result = @connection.exec(query_sql).cmd_status
       if result == "DELETE 1"
-        [204, ""] # HTTP 204 No Content: The server successfully processed the request, but is not returning any content
+        Outcome.good
       else
-        [400, ""] # Don't have any more specific information
+        Outcome.bad
       end
     end
 
-    def find(conditions={})
-      conditions[:is] ||= {}
-      conditions[:contains] ||= {}
-      conditions[:matches] ||= {}
+    def find(params={ :conditions => {} })
+      params[:conditions][:is] ||= {}
+      params[:conditions][:contains] ||= {}
+      params[:conditions][:matches] ||= {}
 
       query = with_normal_and_geo_selects(SQL::Query.new)
 
       query.from(esc_i @table_name)
 
-      if conditions[:closest] && conditions[:closest][:lon] && conditions[:closest][:lat]
+      if params[:conditions][:closest] && params[:conditions][:closest][:lon] && params[:conditions][:closest][:lat]
         query.order_by <<-END_CONDITION
           ST_Distance(
             ST_Transform(#{@table_info.geometry_column}, 4326), 
-            ST_GeomFromText('POINT(#{ Float(conditions[:closest][:lon]) } #{ Float(conditions[:closest][:lat]) })', 4326)
+            ST_GeomFromText('POINT(#{ Float(params[:conditions][:closest][:lon]) } #{ Float(params[:conditions][:closest][:lat]) })', 4326)
           )
         END_CONDITION
       end
 
-      conditions[:is].each do |field, value|
+      params[:conditions][:is].each do |field, value|
         query.where "#{ esc_i field } = #{ i_or_quoted_s_for(value, field) }"
       end
 
-      conditions[:contains].each do |field, value|
+      params[:conditions][:contains].each do |field, value|
         query.where "#{ esc_i field }::varchar ILIKE '%#{ esc_s value.gsub(/(?=[%_])/, "\\") }%'"
         query.order_by "position(upper('#{ esc_s value }') in upper(#{ esc_i field }::varchar))"
         query.order_by "#{ esc_i field }::varchar"
       end
 
-      conditions[:matches].each do |field, value|
+      params[:conditions][:matches].each do |field, value|
         query.where <<-END_CONDITION
           #{ esc_i field } @@
           CASE
@@ -130,9 +143,9 @@ module RestfulGeof
         END_CONDITION
       end
 
-      query.limit conditions[:limit]
-
-      as_feature_collection(@connection.exec(query.to_sql).to_a).to_json
+      query.limit params[:conditions][:limit]
+      
+      Outcome.good(data: as_feature_collection(@connection.exec(query.to_sql).to_a))
     end
 
     private
