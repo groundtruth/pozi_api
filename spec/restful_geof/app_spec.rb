@@ -7,8 +7,8 @@ module RestfulGeof
     let(:app) { App }
 
     %w{POST GET PUT DELETE}.each do |verb|
-      it "should delegate #{verb} requests to the router" do
-        Routes.should_receive(:route)
+      it "should delegate #{verb} requests to the controller" do
+        Controller.should_receive(:handle)
         self.send verb.downcase, "/some/path"
       end
     end
