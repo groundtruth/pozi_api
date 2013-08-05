@@ -158,13 +158,13 @@ code of 204 if the action was successful.
 
 ## Planned functionality
 
-* Create new features.
-* Update existing features.
-* Delete existing features.
-* Find features closest to a point, or within a bounding box.
+* DB connection handling: manually close connections instead of waiting for GC.
+* Impelement all pending specs.
+* Measure test suite coverage.
+* Figure out good settings for prod/other exception handling.
+* Find features within a bounding box.
 * Accept database authentication credentials from HTTP headers.
 * Extend README with an example of running RestfulGeof on Heroku.
-* Return results in a JSONP wrapper.
 * Built-in CORS support.
 * Allow limit condition earlier in the request URL.
 
