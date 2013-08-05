@@ -53,6 +53,7 @@ module RestfulGeof
         fields(properties.keys + [esc_i(@table_info.geometry_column)]).
         values(properties.values + ["ST_GeomFromText('#{ feature.geometry.as_text }', 4326)"])
 
+      # TODO: add checking of cmd_status here
       results = @connection.exec(insert.to_sql).to_a
       Outcome.good(data: as_feature(results.first))
     end
@@ -96,8 +97,7 @@ module RestfulGeof
         DELETE FROM #{ esc_i @table_name }
         WHERE #{ esc_i @table_info.id_column } = #{ i_or_quoted_s_for(params[:id], @table_info.id_column) };
       END_SQL
-      result = @connection.exec(query_sql).cmd_status
-      if result == "DELETE 1"
+      if @connection.exec(query_sql).cmd_status == "DELETE 1"
         Outcome.good
       else
         Outcome.bad

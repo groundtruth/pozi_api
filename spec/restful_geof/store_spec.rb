@@ -72,30 +72,30 @@ module RestfulGeof
     describe "#find" do
 
       context "no results" do
-        it "should render GeoJSON" do
+        it "should give an empty FeatureCollection as data" do
           connection.should_receive(:exec).with(/geometry_geojson/).and_return([])
-          find_result = Store.new(database, table).find
-          JSON.parse(find_result).should == { "type" => "FeatureCollection", "features" => [] }
+          outcome = Store.new(database, table).find
+          outcome.data.should == { "type" => "FeatureCollection", "features" => [] }
         end
       end
 
       context "with results" do
 
-        it "should render GeoJSON (for results with or without geometries)" do
+        it "should return a FeatureCollection (for results with or without geometries)" do
           connection.should_receive(:exec).with(/geometry_geojson/).and_return([
             { :id => 11, :name => "somewhere", :geometry_geojson => nil },
             { :id => 22, :name => "big one", :geometry_geojson => '{"type":"Point","coordinates":[145.716104000000001,-38.097603999999997]}' }
           ])
-          JSON.parse(subject.find).should == {
+          subject.find.data.should == {
             "type" => "FeatureCollection",
             "features" => [
               {
                 "type" => "Feature",
-                "properties" => { "id" => 11, "name" => "somewhere" }
+                "properties" => { :id => 11, :name => "somewhere" }
               },
               {
                 "type" => "Feature",
-                "properties" => { "id" => 22, "name" => "big one" },
+                "properties" => { :id => 22, :name => "big one" },
                 "geometry" => { "type" => "Point", "coordinates" => [145.716104, -38.097604] }
               }
             ]
@@ -106,37 +106,34 @@ module RestfulGeof
 
           it "should include limit clauses" do
             connection.should_receive(:exec).with(/LIMIT 22/)
-            subject.find({ :limit => 22 })
+            subject.find(conditions: { :limit => 22 })
           end
 
-          it "should include 'closest' conditions" do
-            pending
-          end
+          it "should include 'closest' conditions"
 
           it "should include 'is' conditions with integer values" do
-            # connection.should_receive(:exec).with{ |sql| sql.should match(/groupid = 22/) }
             connection.should_receive(:exec).with(/groupid = 22/)
-            subject.find({ :is => { "groupid" => "22" }})
+            subject.find(conditions: { :is => { "groupid" => "22" }})
           end
 
           it "should include 'is' conditions with string values" do
             connection.should_receive(:exec).with(/name = 'world'/)
-            subject.find({ :is => { "name" => "world" }})
+            subject.find(conditions: { :is => { "name" => "world" }})
           end
 
           it "should include 'contains' conditions (with correct escaping)" do
             connection.should_receive(:exec).with(/name::varchar ILIKE '%world\\%%'/)
-            subject.find({ :contains => { "name" => "world%" }})
+            subject.find(conditions: { :contains => { "name" => "world%" }})
           end
 
           it "should order results with 'contains' conditions" do
             connection.should_receive(:exec).with(/ORDER BY position/)
-            subject.find({ :contains => { "name" => "world" }})
+            subject.find(conditions: { :contains => { "name" => "world" }})
           end
 
           it "should include 'matches' conditions" do
             connection.should_receive(:exec).with(/ts_address @@/)
-            subject.find({ :matches => { "ts_address" => "Main Stree" }})
+            subject.find(conditions: { :matches => { "ts_address" => "Main Stree" }})
           end
 
         end
@@ -147,13 +144,13 @@ module RestfulGeof
 
     describe "#read" do
 
-      it "should select the correct record and render it in GeoJSON" do
+      it "should select the correct record and return it as a Feature" do
         connection.should_receive(:exec).with(/geometry_geojson.*WHERE id = 22/m).and_return([
           { :id => 22, :name => "big one", :geometry_geojson => '{"type":"Point","coordinates":[145.716104000000001,-38.097603999999997]}' }
         ])
-        JSON.parse(subject.read("22")).should == {
+        subject.read(id: "22").data.should == {
           "type" => "Feature",
-          "properties" => { "id" => 22, "name" => "big one" },
+          "properties" => { :id => 22, :name => "big one" },
           "geometry" => { "type" => "Point", "coordinates" => [145.716104, -38.097604] }
         }
       end
@@ -177,17 +174,17 @@ module RestfulGeof
         "geometry" => { "type" => "Point", "coordinates" => [145.716104, -38.097604] }
       }}
 
-      it "should insert the record and return it (with ID) in GeoJSON" do
-        pending
+      it "should insert the record and return it (with ID) as Feature" do
         connection.should_receive(:exec).with(/INSERT/m).and_return([
           { :id => 22, :name => "big one", :geometry_geojson => '{"type":"Point","coordinates":[145.716104000000001,-38.097603999999997]}' }
         ])
-        JSON.parse(subject.create("22")).should == {
+        subject.create(id: "22", body_json: feature_without_id.to_json).data.should == {
           "type" => "Feature",
-          "properties" => { "id" => 22, "name" => "big one" },
+          "properties" => { :id => 22, :name => "big one" },
           "geometry" => { "type" => "Point", "coordinates" => [145.716104, -38.097604] }
         }
       end
+
       it "should handle errors gracefully" # prob don't need to repeat what's in integration spec
 
     end

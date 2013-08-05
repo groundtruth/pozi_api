@@ -36,15 +36,11 @@ module RestfulGeof
         end
 
         describe "delete action" do
-          it "should work" do
-            pending
-          end
+          it "should work"
         end
 
         describe "update action" do
-          it "should work" do
-            pending
-          end
+          it "should work"
         end
         
         describe "read action" do
@@ -99,9 +95,7 @@ module RestfulGeof
             params[:conditions].should include(contains: { "name" => "mr ed%" })
           end
 
-          it "should get closest conditions" do
-            pending
-          end
+          it "should get closest conditions"
 
           it "should get limit conditions" do
             request = mock(request_method: "GET", path_info: "/mydb/mytable/groupid/is/2/name/matches/mr%20ed/limit/3")
