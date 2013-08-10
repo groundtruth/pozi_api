@@ -210,6 +210,33 @@ module RestfulGeof
 
         end
 
+        describe "'in' conditions" do
+
+          it "should handle integers" do
+            get "/restful_geof_test/spatial/id/in/2,3,4"
+            last_response.body.should match_json_expression({
+              "type" => "FeatureCollection",
+              "features" => [
+                { "properties" => { "id" => 2 }.ignore_extra_keys!  }.ignore_extra_keys!,
+                { "properties" => { "id" => 3 }.ignore_extra_keys!  }.ignore_extra_keys!,
+                { "properties" => { "id" => 4 }.ignore_extra_keys!  }.ignore_extra_keys!
+              ]
+            })
+          end
+
+          it "should handle strings" do
+            get "/restful_geof_test/spatial/name/in/first,third"
+            last_response.body.should match_json_expression({
+              "type" => "FeatureCollection",
+              "features" => [
+                { "properties" => { "id" => 1 }.ignore_extra_keys!  }.ignore_extra_keys!,
+                { "properties" => { "id" => 3 }.ignore_extra_keys!  }.ignore_extra_keys!
+              ]
+            })
+          end
+
+        end
+
         describe "'matches' conditions" do
 
           it "should find matching results" do

@@ -108,6 +108,7 @@ module RestfulGeof
       # TODO: clarify naming of conditions, options, query.
  
       params[:conditions][:is] ||= {}
+      params[:conditions][:in] ||= {}
       params[:conditions][:contains] ||= {}
       params[:conditions][:matches] ||= {}
 
@@ -126,6 +127,10 @@ module RestfulGeof
 
       params[:conditions][:is].each do |field, value|
         query.where "#{ esc_i field } = #{ i_or_quoted_s_for(value, field) }"
+      end
+
+      params[:conditions][:in].each do |field, values|
+        query.where "#{ esc_i field } IN (#{ values.map { |v| i_or_quoted_s_for(v, field) }.join(", ") })"
       end
 
       params[:conditions][:contains].each do |field, value|
