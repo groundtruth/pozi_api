@@ -12,8 +12,10 @@ module RestfulGeof
       params = Routes.parse(request)
       action = params[:action]
       return 400 unless action.is_in?([:find, :read, :create, :delete, :update])
-      store = Store.new(params[:database], params[:table])
-      outcome = store.send(action, params)
+      outcome = nil
+      Store.new(params[:database], params[:table]) do |store|
+        outcome = store.send(action, params)
+      end
       jsonp_wrapper = request[:jsonp] || request[:callback]
 
       if outcome.okay?
