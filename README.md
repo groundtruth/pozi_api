@@ -93,6 +93,7 @@ URL path (`[]` indicates optional parts, `{}` indicates values to fill in):
 Where `{conditions}` are one, or several (`/` separated) of the following:
 
     {field}/is/{value}
+    {field}/in/{value1},{value2},{valueN}
     {field}/contains/{value}
     {field}/matches/{value}
     closest/{longitude}/{latitude}
@@ -100,6 +101,11 @@ Where `{conditions}` are one, or several (`/` separated) of the following:
 The `is` conditions will match a given field exactly (with ` = `). The value
 part of an `is` condition will be cast to an integer if the database column
 is of an integer type, otherwise it will be treated as a string.
+
+The `in` conditions will match a given field against a list of values. The
+values can be integers or string and should be separated by commas. A string
+including a comma (or other special characters) can be specified by URL encoding
+it.
 
 The `contains` conditions will match if the value string is found within the
 given field. This is case insensitive and results will be returned earlier if
@@ -124,6 +130,7 @@ Here are a some examples:
     /citydb/addresses/limit/1000
     /citydb/addresses/closest/141.584379916592/-36.3419002991608/limit/20
     /citydb/addresses/propertyid/is/2340982
+    /citydb/addresses/propertyid/in/232,236,237
     /citydb/addresses/full_address/contains/22%20high/limit/10
     /citydb/addresses/collection_day/is/Monday/report/matches/broken/limit/1000
 
