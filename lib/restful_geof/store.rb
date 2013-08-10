@@ -43,6 +43,11 @@ module RestfulGeof
             and("table_name = '#{ esc_s @table_name }'").to_sql
         ).to_a
       )
+
+      if block_given?
+        yield self
+        @connection.close
+      end
     end
 
     def create(params)

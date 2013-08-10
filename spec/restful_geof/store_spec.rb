@@ -67,6 +67,18 @@ module RestfulGeof
         lambda { subject }.should raise_error(PG::Error)
       end
 
+      it "should take a block and yield the store object to it" do
+        connection.stub(:close)
+        yielded_store = nil
+        store = Store.new(database, table) { |s| yielded_store = s }
+        yielded_store.object_id.should == store.object_id
+      end
+
+      it "should take a block and close the connection after it" do
+        connection.should_receive(:close)
+        Store.new(database, table) { |s| }
+      end
+
     end
 
     describe "#find" do
