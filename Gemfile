@@ -12,6 +12,7 @@ group :test do
   gem "rack-test"
   gem "json_expressions"
   gem "ZenTest"
+  gem "simplecov", require: false
 end
 
 group :production do

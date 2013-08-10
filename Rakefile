@@ -13,3 +13,24 @@ task :travis do
   exec "rspec -f spec"
 end
 
+namespace :coverage do
+
+  def define_task name, description, path
+    desc description
+    task name do
+      puts "Checking #{description}..."
+      require "simplecov"
+      SimpleCov.start
+      require_relative "spec/spec_helper"
+      Dir.glob("lib/**/*.rb").each { |file| require_relative file }
+      RSpec::Core::Runner.run([path])
+      system "open coverage/index.html"
+    end
+  end
+
+  define_task :unit, "unit spec coverage", "spec/restful_geof"
+  define_task :integration, "integration spec coverage", "spec/integration"
+  define_task :full, "full spec suite coverage", "spec"
+
+end
+
