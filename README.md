@@ -165,9 +165,8 @@ code of 204 if the action was successful.
 
 ## Planned functionality
 
-* DB connection handling: manually close connections instead of waiting for GC.
-* Impelement all pending specs.
 * Measure test suite coverage.
+* Impelement all pending specs.
 * Figure out good settings for prod/other exception handling.
 * Find features within a bounding box.
 * Accept database authentication credentials from HTTP headers.
