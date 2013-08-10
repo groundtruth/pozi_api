@@ -81,6 +81,13 @@ module RestfulGeof
             params[:conditions].should include(is: { "typeid" => "44" })
           end
 
+          it "should handle 'in' conditions that have commas" do
+            request = mock(request_method: "GET", path_info: "/mydb/mytable/name/in/foo,has%2Ccomma")
+            params = subject.parse(request)
+            params.should include(:action => :find, :database => "mydb", :table => "mytable")
+            params[:conditions].should include(in: { "name" => ["foo", "has,comma"] })
+          end
+
           it "should get full text search conditions" do
             request = mock(request_method: "GET", path_info: "/mydb/mytable/groupid/is/2/name/matches/mr%20ed/limit/1")
             params = subject.parse(request)

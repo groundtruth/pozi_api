@@ -21,12 +21,14 @@ module RestfulGeof
         limit = URI.unescape $~[:limit].to_s
         conditions = $~[:conditions_string].to_s.scan(%r{/(?<part1>[^/]+)/(?<part2>[^/]+)/(?<part3>[^/]+)}x)
 
-        condition_options = { :is => {}, :matches => {}, :contains => {}, :closest => {} }
+        condition_options = { :is => {}, :in => {}, :matches => {}, :contains => {}, :closest => {} }
         condition_options[:limit] = limit.to_i unless limit.empty?
         conditions.each do |condition|
           part1, part2, part3 = condition.map { |str| URI.unescape str }
           if part2.is_in?(%w{is matches contains})
             condition_options[part2.to_sym][part1] = part3
+          elsif part2 == "in"
+            condition_options[:in][part1] = condition.last.split(",").map { |str| URI.unescape str }
           elsif part1 == "closest"
             condition_options[:closest][:lon] = part2
             condition_options[:closest][:lat] = part3
