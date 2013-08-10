@@ -108,6 +108,16 @@ module RestfulGeof
             # store.should_receive(:find).with { |conditions| conditions.keys.include?(:limit).should be_false }
             subject.parse(request)
           end
+          
+          it "should say unknown if the URL doesn't match anything" do
+            request = mock(request_method: "GET", path_info: "/somecrazyurlthatdoesnotmatchanything")
+            subject.parse(request).should include(:action => :unknown)
+          end
+
+          it "should not match any action if the condition is something crazy" do
+            request = mock(request_method: "GET", path_info: "/mydb/mytable/field/notarealcondition/value")
+            subject.parse(request).should include(:action => :unknown)
+          end
 
         end
         
