@@ -109,7 +109,7 @@ module RestfulGeof
       end
     end
 
-    def find(params={ :conditions => {} })
+    def query(params={ :conditions => {} })
       # TODO: clarify naming of conditions, options, query.
  
       params[:conditions][:is] ||= {}

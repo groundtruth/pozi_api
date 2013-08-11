@@ -81,12 +81,12 @@ module RestfulGeof
 
     end
 
-    describe "#find" do
+    describe "#query" do
 
       context "no results" do
         it "should give an empty FeatureCollection as data" do
           connection.should_receive(:exec).with(/geometry_geojson/).and_return([])
-          outcome = Store.new(database, table).find
+          outcome = Store.new(database, table).query
           outcome.data.should == { "type" => "FeatureCollection", "features" => [] }
         end
       end
@@ -98,7 +98,7 @@ module RestfulGeof
             { :id => 11, :name => "somewhere", :geometry_geojson => nil },
             { :id => 22, :name => "big one", :geometry_geojson => '{"type":"Point","coordinates":[145.716104000000001,-38.097603999999997]}' }
           ])
-          subject.find.data.should == {
+          subject.query.data.should == {
             "type" => "FeatureCollection",
             "features" => [
               {
@@ -118,34 +118,34 @@ module RestfulGeof
 
           it "should include limit clauses" do
             connection.should_receive(:exec).with(/LIMIT 22/)
-            subject.find(conditions: { :limit => 22 })
+            subject.query(conditions: { :limit => 22 })
           end
 
           it "should include 'closest' conditions"
 
           it "should include 'is' conditions with integer values" do
             connection.should_receive(:exec).with(/groupid = 22/)
-            subject.find(conditions: { :is => { "groupid" => "22" }})
+            subject.query(conditions: { :is => { "groupid" => "22" }})
           end
 
           it "should include 'is' conditions with string values" do
             connection.should_receive(:exec).with(/name = 'world'/)
-            subject.find(conditions: { :is => { "name" => "world" }})
+            subject.query(conditions: { :is => { "name" => "world" }})
           end
 
           it "should include 'contains' conditions (with correct escaping)" do
             connection.should_receive(:exec).with(/name::varchar ILIKE '%world\\%%'/)
-            subject.find(conditions: { :contains => { "name" => "world%" }})
+            subject.query(conditions: { :contains => { "name" => "world%" }})
           end
 
           it "should order results with 'contains' conditions" do
             connection.should_receive(:exec).with(/ORDER BY position/)
-            subject.find(conditions: { :contains => { "name" => "world" }})
+            subject.query(conditions: { :contains => { "name" => "world" }})
           end
 
           it "should include 'matches' conditions" do
             connection.should_receive(:exec).with(/ts_address @@/)
-            subject.find(conditions: { :matches => { "ts_address" => "Main Stree" }})
+            subject.query(conditions: { :matches => { "ts_address" => "Main Stree" }})
           end
 
         end

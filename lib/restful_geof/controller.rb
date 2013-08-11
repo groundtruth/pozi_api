@@ -11,7 +11,7 @@ module RestfulGeof
 
       params = Routes.new(request).params
       action = params[:action]
-      return 400 unless action.is_in?([:find, :read, :create, :delete, :update])
+      return 400 unless action.is_in?([:query, :read, :create, :delete, :update])
       outcome = nil
       Store.new(params[:database], params[:table]) do |store|
         outcome = store.send(action, params)

@@ -46,7 +46,7 @@ module RestfulGeof
         end
 
         {
-          :action => :find,
+          :action => :query,
           :database => URI.unescape(main_match[:database].to_s),
           :table => URI.unescape(main_match[:table].to_s),
           :conditions => condition_options
