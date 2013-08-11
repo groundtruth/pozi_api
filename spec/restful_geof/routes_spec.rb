@@ -107,17 +107,13 @@ module RestfulGeof
           it "should get closest conditions"
 
           it "should get limit conditions" do
-            pending
             request = mock(request_method: "GET", path_info: "/mydb/mytable/groupid/is/2/name/matches/mr%20ed/limit/3", body: StringIO.new)
-            # store.should_receive(:query).with(hash_including(limit: 3))
-            subject.new(request).params
+            subject.new(request).params[:conditions].should include(limit: 3)
           end
 
           it "should not pass limit if not given" do
-            pending
             request = mock(request_method: "GET", path_info: "/mydb/mytable/groupid/is/2/name/matches/mr%20ed", body: StringIO.new)
-            # store.should_receive(:query).with { |conditions| conditions.keys.include?(:limit).should be_false }
-            subject.new(request).params
+            subject.new(request).params[:conditions].keys.include?(:limit).should be_false
           end
           
           it "should say unknown if the URL doesn't match anything" do
