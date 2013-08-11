@@ -9,7 +9,7 @@ module RestfulGeof
 
     def self.handle(request)
 
-      params = Routes.parse(request)
+      params = Routes.new(request).params
       action = params[:action]
       return 400 unless action.is_in?([:find, :read, :create, :delete, :update])
       outcome = nil

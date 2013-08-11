@@ -3,11 +3,17 @@ require "uri"
 require "ruby/object"
 
 module RestfulGeof
-  module Routes
+  class Routes
 
-    def self.parse(request)
+    def initialize(request)
+      @request_method = request.request_method
+      @path_info = request.path_info
+      @body = request.body.read
+    end
 
-      if request.request_method == "GET" && request.path_info.match(%r{
+    def params
+
+      if @request_method == "GET" && @path_info.match(%r{
         ^
         /(?<database>[^/]+)
         /(?<table>[^/]+)
@@ -44,7 +50,7 @@ module RestfulGeof
           :conditions => condition_options
         }
 
-      elsif request.request_method == "GET" && request.path_info.match(%r{
+      elsif @request_method == "GET" && @path_info.match(%r{
         ^
         /(?<database>[^/]+)
         /(?<table>[^/]+)
@@ -63,7 +69,7 @@ module RestfulGeof
           :id => id
         }
 
-      elsif request.request_method == "POST" && request.path_info.match(%r{
+      elsif @request_method == "POST" && @path_info.match(%r{
         ^
         /(?<database>[^/]+)
         /(?<table>[^/]+)
@@ -77,10 +83,10 @@ module RestfulGeof
           :action => :create,
           :database => database,
           :table => table,
-          :body_json => request.body.read
+          :body_json => @body
         }
 
-      elsif request.request_method == "DELETE" && request.path_info.match(%r{
+      elsif @request_method == "DELETE" && @path_info.match(%r{
         ^
         /(?<database>[^/]+)
         /(?<table>[^/]+)
@@ -99,7 +105,7 @@ module RestfulGeof
           :id => id
         }
 
-      elsif request.request_method == "PUT" && request.path_info.match(%r{
+      elsif @request_method == "PUT" && @path_info.match(%r{
         ^
         /(?<database>[^/]+)
         /(?<table>[^/]+)
@@ -116,7 +122,7 @@ module RestfulGeof
           :database => database,
           :table => table,
           :id => id,
-          :body_json => request.body.read
+          :body_json => @body
         }
 
       end
