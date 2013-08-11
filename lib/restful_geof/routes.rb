@@ -62,7 +62,7 @@ module RestfulGeof
         (/(?<id>[^/]+))?
         $
       }x)
-        valid_params(
+        params_if_valid(
           without_empties({
             :action => crud_action,
             :database => URI.unescape($~[:database].to_s),
@@ -87,7 +87,7 @@ module RestfulGeof
       Hash[params.map { |k,v| [k, v] unless v.empty? }.compact]
     end
 
-    def valid_params(params)
+    def params_if_valid(params)
       keys_required_by_action = {
         :read =>   [:action, :database, :table, :id],
         :create => [:action, :database, :table, :body_json],
