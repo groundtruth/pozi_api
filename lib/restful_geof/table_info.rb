@@ -21,7 +21,7 @@ module RestfulGeof
 
     def integer_col?(name)
       col = @column_info.select { |r| r[:column_name] == name }.first
-      raise "No column named '#{name}' found!"
+      raise "No column named '#{name}' found!" if col.nil?
       col_type = col[:udt_name]
       %w{integer int smallint bigint int2 int4 int8}.include?(col_type)
     end
