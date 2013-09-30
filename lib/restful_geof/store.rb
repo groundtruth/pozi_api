@@ -177,7 +177,11 @@ module RestfulGeof
     end
 
     def i_or_quoted_s_for value, field
-      @table_info.integer_col?(field) ? Integer(value).to_s : "'#{ esc_s value }'"
+      if @table_info.integer_col?(field)
+        value.to_s.empty? ? "NULL" : Integer(value).to_s
+      else
+        "'#{ esc_s value }'"
+      end
     end
 
     def with_normal_and_geo_selects(query)

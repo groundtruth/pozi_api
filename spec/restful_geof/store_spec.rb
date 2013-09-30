@@ -197,6 +197,8 @@ module RestfulGeof
         }
       end
 
+      it "should set set an integer column specified as an empty string to NULL"
+
       it "should handle errors gracefully" # prob don't need to repeat what's in integration spec
 
     end
