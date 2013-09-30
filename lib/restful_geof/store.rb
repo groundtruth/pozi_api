@@ -111,7 +111,7 @@ module RestfulGeof
 
     def query(params={ :conditions => {} })
       # TODO: clarify naming of conditions, options, query.
- 
+
       params[:conditions][:is] ||= {}
       params[:conditions][:in] ||= {}
       params[:conditions][:contains] ||= {}
@@ -124,7 +124,7 @@ module RestfulGeof
       if params[:conditions][:closest] && params[:conditions][:closest][:lon] && params[:conditions][:closest][:lat]
         query.order_by <<-END_CONDITION
           ST_Distance(
-            ST_Transform(#{@table_info.geometry_column}, 4326), 
+            ST_Transform(#{@table_info.geometry_column}, 4326),
             ST_GeomFromText('POINT(#{ Float(params[:conditions][:closest][:lon]) } #{ Float(params[:conditions][:closest][:lat]) })', 4326)
           )
         END_CONDITION
@@ -156,7 +156,7 @@ module RestfulGeof
       end
 
       query.limit params[:conditions][:limit]
-      
+
       Outcome.good(data: as_feature_collection(@connection.exec(query.to_sql).to_a))
     end
 
