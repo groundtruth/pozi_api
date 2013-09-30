@@ -34,15 +34,21 @@ module RestfulGeof
 
       @table_name = table_name
 
-      @table_info = TableInfo.new(
-        @connection.exec(
-          SQL::Query.new.
-            select("column_name", "udt_name").
-            from("information_schema.columns").
-            where("table_catalog = '#{ esc_s @connection.db }'").
-            and("table_name = '#{ esc_s @table_name }'").to_sql
-        ).to_a
-      )
+      info_query = SQL::Query.new.
+        select("column_name", "udt_name").
+        from("information_schema.columns").
+        where("table_catalog = '#{ esc_s @connection.db }'").
+        and("table_name = '#{ esc_s @table_name }'").to_sql
+      result = @connection.exec(info_query)
+      rows = result.to_a
+      if rows.count == 0
+        raise "Could not get table info for #{@connection.db}.#{@table_name}. "+
+              "res_status: '#{result.res_status}' "+
+              "cmd_status: '#{result.cmd_status}' "+
+              "error_message: '#{result.error_message}' "+
+              "sql: '#{info_query}'"
+      end
+      @table_info = TableInfo.new(rows)
 
       if block_given?
         yield self
