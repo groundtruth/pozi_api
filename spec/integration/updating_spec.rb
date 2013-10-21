@@ -17,7 +17,7 @@ module RestfulGeof
         @feature = {
           "type" => "Feature", "properties" => { "name" => "new point" },
           "geometry" => {
-            "type" => "Point"
+            "type" => "Point", 
             "crs"=> { "type"=>"name", "properties"=> { "name" => "EPSG:4326" } },
             "coordinates" => [143.584379916592, -38.3419002991608]
           }
