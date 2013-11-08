@@ -181,6 +181,36 @@ module RestfulGeof
 
         end
 
+        describe "'inradius' conditions" do
+
+          it "should get just things in the radius" do
+            pending
+            get "/restful_geof_test/spatial/180000/maround/140.584379916592/-35.3419002991608/limit/3"
+            last_response.body.should match_json_expression({
+              "type" => "FeatureCollection",
+              "features" => [
+                {
+                  "type" => "Feature", "properties" => { "id" => 1, "name" => "first" },
+                  "geometry" => {
+                    "type" => "Point", 
+                    "crs"=> { "type"=>"name", "properties"=> { "name" => "EPSG:4326" } },
+                    "coordinates" => [around(140.584379916592), around(-35.3419002991608)]
+                  }
+                },
+                {
+                  "type" => "Feature", "properties" => { "id" => 2, "name" => "second" },
+                  "geometry" => {
+                    "type" => "Point", 
+                    "crs"=> { "type"=>"name", "properties"=> { "name" => "EPSG:4326" } },
+                    "coordinates" => [around(141.584379916592), around(-36.3419002991608)]
+                  }
+                }
+              ]
+            })
+          end
+
+        end
+
         describe "'is' conditions" do
 
           it "should handle integers" do

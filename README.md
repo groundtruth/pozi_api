@@ -29,8 +29,8 @@ Get the code and run the full test suite as follows:
     bundle exec rspec spec
 
 The integration tests assume there is a local database with PostGIS that can
-be accessed as the current user, without a password, and that `psql` is on the
-path.
+be accessed as the current user, without a password ('trust' METHOD), and that 
+`psql` is on the path.
 
 RestfulGeof uses the RGeo gem, which depends on GEOS and Proj.
 More info [on the RGeo page](https://github.com/dazuma/rgeo#dependencies).
@@ -97,6 +97,7 @@ Where `{conditions}` are one, or several (`/` separated) of the following:
     {field}/contains/{value}
     {field}/matches/{value}
     closest/{longitude}/{latitude}
+    {distance}/maround/{longitude}/{latitude}
 
 The `is` conditions will match a given field exactly (with ` = `). The value
 part of an `is` condition will be cast to an integer if the database column
