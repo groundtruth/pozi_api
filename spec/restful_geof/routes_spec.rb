@@ -107,11 +107,10 @@ module RestfulGeof
           it "should get closest conditions"
 
           it "should get maround conditions" do
-            pending
             request = mock(request_method: "GET", path_info: "/mydb/mytable/2.5/maround/140.584379916592/-35.3419002991608/limit/12", body: StringIO.new)
             params = subject.new(request).params
             params.should include(:action => :query, :database => "mydb", :table => "mytable")
-            params[:conditions].should include(contains: { "point" => [140.584379916592,-35.3419002991608], "radius" => 2.5 })
+            params[:conditions].should include(maround: { :radius => 2.5, lon: 140.584379916592, :lat => -35.3419002991608 })
           end
 
           it "should get limit conditions" do

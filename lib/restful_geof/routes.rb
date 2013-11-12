@@ -22,24 +22,37 @@ module RestfulGeof
         ^
         /(?<database>[^/]+)
         /(?<table>[^/]+)
-        (?<conditions_string>(/[^/]+/[^/]+/[^/]+)*)
+        (?<conditions_string>(
+          /[^/]+/(in|is|matches|contains)/[^/]+ |
+          /closest/[^/]+/[^/]+ |
+          /[^/]+/maround/[^/]+/[^/]+
+        )*)
         (/limit/(?<limit>\d+))?
         $
       }x)
         main_match = $~
-        condition_options = { :is => {}, :in => {}, :matches => {}, :contains => {}, :closest => {} }
+        condition_options = { :is => {}, :in => {}, :matches => {}, :contains => {}, :closest => {}, :maround => {} }
 
         condition_options[:limit] = URI.unescape(main_match[:limit].to_s).to_i unless URI.unescape(main_match[:limit].to_s).empty?
 
-        main_match[:conditions_string].to_s.scan(%r{/(?<part1>[^/]+)/(?<part2>[^/]+)/(?<part3>[^/]+)}x).each do |condition_raw|
-          part1, part2, part3 = condition_raw.map { |str| URI.unescape str }
+        main_match[:conditions_string].to_s.scan(%r{(
+            /[^/]+/(in|is|matches|contains)/[^/]+ |
+            /closest/[^/]+/[^/]+ |
+            /[^/]+/maround/[^/]+/[^/]+
+          )}x).each do |condition_raw|
+          puts condition_raw.inspect 
+          foo, part1, part2, part3, part4 = condition_raw.first.split('/').map { |str| URI.unescape str }
           if part2.is_in?(%w{is matches contains})
             condition_options[part2.to_sym][part1] = part3
           elsif part2 == "in"
-            condition_options[:in][part1] = condition_raw.last.split(",").map { |str| URI.unescape str }
+            condition_options[:in][part1] = condition_raw.first.split('/').last.split(",").map { |str| URI.unescape str }
           elsif part1 == "closest"
             condition_options[:closest][:lon] = part2
             condition_options[:closest][:lat] = part3
+          elsif part2 == "maround"
+            condition_options[:maround][:radius] = part1.to_f
+            condition_options[:maround][:lon] = part3.to_f
+            condition_options[:maround][:lat] = part4.to_f
           else
             return { :action => :unknown }
           end
