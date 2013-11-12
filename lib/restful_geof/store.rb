@@ -127,6 +127,19 @@ module RestfulGeof
 
       query.from(esc_i @table_name)
 
+      if params[:conditions][:maround] && params[:conditions][:maround][:lon] && params[:conditions][:maround][:lat]
+        query.where <<-END_CONDITION
+          ST_DWithin(
+            ST_Transform(#{@table_info.geometry_column}, 900913),
+            ST_Transform(ST_GeomFromText('POINT(
+              #{ Float(params[:conditions][:maround][:lon]) }
+              #{ Float(params[:conditions][:maround][:lat]) }
+            )', 4326), 900913),
+            #{ Float(params[:conditions][:maround][:radius]) }
+          )
+        END_CONDITION
+      end
+
       if params[:conditions][:closest] && params[:conditions][:closest][:lon] && params[:conditions][:closest][:lat]
         query.order_by <<-END_CONDITION
           ST_Distance(

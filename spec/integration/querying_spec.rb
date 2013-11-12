@@ -184,7 +184,6 @@ module RestfulGeof
         describe "'inradius' conditions" do
 
           it "should get just things in the radius" do
-            pending
             get "/restful_geof_test/spatial/180000/maround/140.584379916592/-35.3419002991608/limit/3"
             last_response.body.should match_json_expression({
               "type" => "FeatureCollection",
