@@ -18,15 +18,16 @@ module RestfulGeof
     private
 
     def query_request_params
+      condition_matcher = '(
+        /[^/]+/(in|is|matches|contains)/[^/]+ |
+        /closest/[^/]+/[^/]+ |
+        /[^/]+/maround/[^/]+/[^/]+
+      )'
       if @request_method == "GET" && @path_info.match(%r{
         ^
         /(?<database>[^/]+)
         /(?<table>[^/]+)
-        (?<conditions_string>(
-          /[^/]+/(in|is|matches|contains)/[^/]+ |
-          /closest/[^/]+/[^/]+ |
-          /[^/]+/maround/[^/]+/[^/]+
-        )*)
+        (?<conditions_string>#{condition_matcher}*)
         (/limit/(?<limit>\d+))?
         $
       }x)
@@ -35,17 +36,13 @@ module RestfulGeof
 
         condition_options[:limit] = URI.unescape(main_match[:limit].to_s).to_i unless URI.unescape(main_match[:limit].to_s).empty?
 
-        main_match[:conditions_string].to_s.scan(%r{(
-            /[^/]+/(in|is|matches|contains)/[^/]+ |
-            /closest/[^/]+/[^/]+ |
-            /[^/]+/maround/[^/]+/[^/]+
-          )}x).each do |condition_raw|
-          puts condition_raw.inspect 
-          foo, part1, part2, part3, part4 = condition_raw.first.split('/').map { |str| URI.unescape str }
+        main_match[:conditions_string].to_s.scan(%r{#{condition_matcher}}x).each do |condition_raw|
+          escaped_parts = condition_raw.first[1..-1].split('/')
+          part1, part2, part3, part4 = escaped_parts.map { |str| URI.unescape str }
           if part2.is_in?(%w{is matches contains})
             condition_options[part2.to_sym][part1] = part3
           elsif part2 == "in"
-            condition_options[:in][part1] = condition_raw.first.split('/').last.split(",").map { |str| URI.unescape str }
+            condition_options[:in][part1] = escaped_parts.last.split(",").map { |str| URI.unescape str }
           elsif part1 == "closest"
             condition_options[:closest][:lon] = part2
             condition_options[:closest][:lat] = part3
