@@ -35,11 +35,12 @@ module RestfulGeof
       @table_name = table_name
 
       info_query = SQL::Query.new.
-        select("column_name", "udt_name").
-        from("information_schema.columns").
-        where("table_catalog = '#{ esc_s @connection.db }'").
-        and("table_name = '#{ esc_s @table_name }'").to_sql
+        select("column_name", "udt_name", "srid").
+        from("information_schema.columns c LEFT OUTER JOIN geometry_columns g ON g.f_table_name=c.table_name AND g.f_table_catalog=c.table_catalog AND g.f_geometry_column=c.column_name").
+        where("c.table_catalog = '#{ esc_s @connection.db }'").
+        and("c.table_name = '#{ esc_s @table_name }'").to_sql
       result = @connection.exec(info_query)
+
       rows = result.to_a
       if rows.count == 0
         raise "Could not get table info for #{@connection.db}.#{@table_name}. "+
