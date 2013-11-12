@@ -131,14 +131,19 @@ module RestfulGeof
       query.from(esc_i @table_name)
 
       unless params[:conditions][:maround].empty?
+        lon = Float(params[:conditions][:maround][:lon])
+        lat = Float(params[:conditions][:maround][:lat])
         query.where <<-END_CONDITION
-          ST_DWithin(
-            ST_Transform(#{@table_info.geometry_column}, 900913),
-            ST_Transform(ST_GeomFromText('POINT(
-              #{ Float(params[:conditions][:maround][:lon]) }
-              #{ Float(params[:conditions][:maround][:lat]) }
-            )', 4326), 900913),
-            #{ Float(params[:conditions][:maround][:radius]) }
+          ST_Intersects(
+            ST_Transform(
+              ST_Buffer(
+                ST_Transform(ST_GeomFromText('POINT(#{ lon } #{ lat })', 4326), 900913), 
+                #{ Float(params[:conditions][:maround][:radius]) },
+                'quad_segs=16'
+              ),
+              #{@table_info.geometry_srid}
+            ),
+            #{@table_info.geometry_column}
           )
         END_CONDITION
       end

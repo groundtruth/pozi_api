@@ -8,9 +8,7 @@ module RestfulGeof
     include Rack::Test::Methods
     let(:app) { App }
 
-    before :all do
-      %x{psql -f #{ROOT_PATH}/spec/resources/seeds.sql -U #{ENV["RESTFUL_GEOF_PG_USERNAME"] || ENV["USER"]}}
-    end
+    before(:all) { clean_db }
 
     def around(number, precision=0.0000001)
       (number - precision)..(number + precision)
@@ -184,7 +182,11 @@ module RestfulGeof
         describe "'maround' conditions" do
 
           it "should get just things in the radius" do
-            get "/restful_geof_test/spatial/180000/maround/143.584379916592/-38.3419002991608/limit/3"
+            # SELECT ST_Distance(
+            #   ST_Transform(ST_GeomFromText('POINT(142.584379916592 -37.3419002991608)', 4326), 900913),
+            #   ST_Transform(ST_GeomFromText('POINT(143.584379916592 -38.3419002991608)', 4326), 900913)
+            # ); -- => 179621.098064464 (meters)
+            get "/restful_geof_test/spatial/200000.5/maround/143.584379916592/-38.3419002991608/limit/3"
             last_response.body.should match_json_expression({
               "type" => "FeatureCollection",
               "features" => [

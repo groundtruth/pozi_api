@@ -11,6 +11,10 @@ module RestfulGeof
       @column_info.map { |r| r[:column_name] if r[:udt_name] == "geometry" }.compact.first
     end
 
+    def geometry_srid
+      @column_info.map { |r| r[:srid] if r[:udt_name] == "geometry" }.compact.first
+    end
+
     def tsvector_columns
       @column_info.map { |r| r[:column_name] if r[:udt_name] == "tsvector" }.compact
     end
