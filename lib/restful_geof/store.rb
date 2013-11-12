@@ -122,12 +122,14 @@ module RestfulGeof
       params[:conditions][:in] ||= {}
       params[:conditions][:contains] ||= {}
       params[:conditions][:matches] ||= {}
+      params[:conditions][:closest] ||= {}
+      params[:conditions][:maround] ||= {}
 
       query = with_normal_and_geo_selects(SQL::Query.new)
 
       query.from(esc_i @table_name)
 
-      if params[:conditions][:maround] && params[:conditions][:maround][:lon] && params[:conditions][:maround][:lat]
+      unless params[:conditions][:maround].empty?
         query.where <<-END_CONDITION
           ST_DWithin(
             ST_Transform(#{@table_info.geometry_column}, 900913),
@@ -140,11 +142,18 @@ module RestfulGeof
         END_CONDITION
       end
 
-      if params[:conditions][:closest] && params[:conditions][:closest][:lon] && params[:conditions][:closest][:lat]
+      ordering_point = nil
+      if params[:conditions][:closest][:lat] && params[:conditions][:closest][:lon]
+        ordering_point = params[:conditions][:closest]
+      elsif params[:conditions][:maround][:lat] && params[:conditions][:maround][:lon]
+        ordering_point = params[:conditions][:maround]
+      end
+
+      if ordering_point
         query.order_by <<-END_CONDITION
           ST_Distance(
             ST_Transform(#{@table_info.geometry_column}, 4326),
-            ST_GeomFromText('POINT(#{ Float(params[:conditions][:closest][:lon]) } #{ Float(params[:conditions][:closest][:lat]) })', 4326)
+            ST_GeomFromText('POINT(#{ Float(ordering_point[:lon]) } #{ Float(ordering_point[:lat]) })', 4326)
           )
         END_CONDITION
       end

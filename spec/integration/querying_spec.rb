@@ -181,30 +181,30 @@ module RestfulGeof
 
         end
 
-        describe "'inradius' conditions" do
+        describe "'maround' conditions" do
 
           it "should get just things in the radius" do
-            get "/restful_geof_test/spatial/180000/maround/140.584379916592/-35.3419002991608/limit/3"
+            get "/restful_geof_test/spatial/180000/maround/143.584379916592/-38.3419002991608/limit/3"
             last_response.body.should match_json_expression({
               "type" => "FeatureCollection",
               "features" => [
                 {
-                  "type" => "Feature", "properties" => { "id" => 1, "name" => "first" },
+                  "type" => "Feature", "properties" => { "id" => 4, "name" => "123" },
                   "geometry" => {
                     "type" => "Point", 
                     "crs"=> { "type"=>"name", "properties"=> { "name" => "EPSG:4326" } },
-                    "coordinates" => [around(140.584379916592), around(-35.3419002991608)]
+                    "coordinates" => [around(143.584379916592), around(-38.3419002991608)]
                   }
                 },
                 {
-                  "type" => "Feature", "properties" => { "id" => 2, "name" => "second" },
+                  "type" => "Feature", "properties" => { "id" => 3, "name" => "third" },
                   "geometry" => {
                     "type" => "Point", 
                     "crs"=> { "type"=>"name", "properties"=> { "name" => "EPSG:4326" } },
-                    "coordinates" => [around(141.584379916592), around(-36.3419002991608)]
+                    "coordinates" => [around(142.584379916592), around(-37.3419002991608)]
                   }
                 }
-              ]
+              ].ordered!
             })
           end
 
