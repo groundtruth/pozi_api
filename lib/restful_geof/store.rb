@@ -137,7 +137,7 @@ module RestfulGeof
           ST_Intersects(
             ST_Transform(
               ST_Buffer(
-                ST_Transform(ST_GeomFromText('POINT(#{ lon } #{ lat })', 4326), 900913), 
+                ST_Transform(ST_GeomFromText('POINT(#{ lon } #{ lat })', 4326), 3857), 
                 #{ Float(params[:conditions][:maround][:radius]) },
                 'quad_segs=16'
               ),

@@ -183,8 +183,8 @@ module RestfulGeof
 
           it "should get just things in the radius" do
             # SELECT ST_Distance(
-            #   ST_Transform(ST_GeomFromText('POINT(142.584379916592 -37.3419002991608)', 4326), 900913),
-            #   ST_Transform(ST_GeomFromText('POINT(143.584379916592 -38.3419002991608)', 4326), 900913)
+            #   ST_Transform(ST_GeomFromText('POINT(142.584379916592 -37.3419002991608)', 4326), 3857),
+            #   ST_Transform(ST_GeomFromText('POINT(143.584379916592 -38.3419002991608)', 4326), 3857)
             # ); -- => 179621.098064464 (meters)
             get "/restful_geof_test/spatial/200000.5/maround/143.584379916592/-38.3419002991608/limit/3"
             last_response.body.should match_json_expression({
