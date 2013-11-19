@@ -57,6 +57,10 @@ for presentation in WGS84 (EPSG:4326).
 
 There must be at least one non-geometry column (e.g. `id`).
 
+The database credentials used (see below) must have access to the
+`geometry_columns` and `spatial_ref_sys` metadata tables as well as any
+data tables being worked with.
+
 ### Credentials
 
 Database connection and authentication details default to the local instance
@@ -124,12 +128,18 @@ adjusted so that the final search term can match as a prefix.
 A `closest` condition will order found features by distance from the given
 point. This is best used in conjunction with a limit.
 
+The `maround` condition will restrict the results to those within a given area,
+defined by a radius in meters around a point. The results will be ordered with
+the closest first. Since this condition can make use of spatial indexes, it
+is usually preferable to a `closest` condition.
+
 Here are a some examples:
 
     /citydb/offices
     /citydb/addresses/limit/1000
     /citydb/addresses/limit/1000
     /citydb/addresses/closest/141.584379916592/-36.3419002991608/limit/20
+    /citydb/addresses/100/maround/141.584379916592/-36.3419002991608
     /citydb/addresses/propertyid/is/2340982
     /citydb/addresses/propertyid/in/232,236,237
     /citydb/addresses/full_address/contains/22%20high/limit/10
