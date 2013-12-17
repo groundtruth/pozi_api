@@ -60,6 +60,17 @@ module RestfulGeof
         })
       end
 
+      it "should handle non-spatial records" do
+        post "/restful_geof_test/non_spatial", {
+          "type" => "Feature", "properties" => { "name" => "new non-spatial record" }
+        }.to_json
+        new_id = JSON.parse(last_response.body)["properties"]["id"]
+        get "/restful_geof_test/non_spatial/#{new_id}"
+        last_response.body.should match_json_expression({
+          "type" => "Feature", "properties" => { "id" => new_id, "name" => "new non-spatial record" },
+        })
+      end
+
       it "should correctly insert into a table with SRID other than EPSG:4326" do
         pending # maybe this should be done by just adjusting the above examples to use the other_srid table
       end
