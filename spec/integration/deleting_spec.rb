@@ -34,6 +34,20 @@ module RestfulGeof
         last_response.status.should == 404
       end
 
+      it "should handle non-spatial records" do
+        json = { "type" => "Feature", "properties" => { "name" => "new point" } }.to_json
+        post "/restful_geof_test/non_spatial", json
+        last_response.should be_ok
+        new_id = JSON.parse(last_response.body)["properties"]["id"]
+
+        get "/restful_geof_test/non_spatial/#{new_id}"
+        last_response.should be_ok
+        delete "/restful_geof_test/non_spatial/#{new_id}"
+        last_response.status.should == 204
+        get "/restful_geof_test/non_spatial/#{new_id}"
+        last_response.status.should == 404
+      end
+
     end
 
   end

@@ -1,4 +1,5 @@
 require "spec_helper"
+require "json_expressions/rspec"
 
 require "restful_geof/app"
 
@@ -35,6 +36,19 @@ module RestfulGeof
         get "/restful_geof_test/spatial/#{@id}"
         last_response.should be_ok
         JSON.parse(last_response.body)["properties"]["name"].should == "old point, new name"
+      end
+
+      it "should handle non-spatial records" do
+        id = 1
+        put "/restful_geof_test/non_spatial/#{id}", {
+          "type" => "Feature", "properties" => { "id" => id, "name" => "first record, renamed" }
+        }.to_json
+        last_response.should be_ok
+        get "/restful_geof_test/non_spatial/#{id}"
+        last_response.should be_ok
+        last_response.body.should match_json_expression({
+          "type" => "Feature", "properties" => { "id" => id, "name" => "first record, renamed" }
+        })
       end
 
     end

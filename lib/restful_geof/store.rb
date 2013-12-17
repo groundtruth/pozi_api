@@ -61,9 +61,13 @@ module RestfulGeof
       feature = RGeo::GeoJSON.decode(params[:body_json], :json_parser => :json)
       properties = Hash[feature.properties.map { |k,v| [esc_i(k), i_or_quoted_s_for(v, k)] }]
 
+      if @table_info.geometry_column
+        properties[esc_i(@table_info.geometry_column)] = "ST_GeomFromText('#{ feature.geometry.as_text }', 4326)"
+      end
+
       insert = with_normal_and_geo_selects(SQL::Insert.new).into(esc_i(@table_name)).
-        fields(properties.keys + [esc_i(@table_info.geometry_column)]).
-        values(properties.values + ["ST_GeomFromText('#{ feature.geometry.as_text }', 4326)"])
+        fields(properties.keys).
+        values(properties.values)
 
       # TODO: add checking of cmd_status here
       results = @connection.exec(insert.to_sql).to_a
@@ -78,9 +82,13 @@ module RestfulGeof
         return Outcome.bad(problem: "ID in payload doesn't match ID in URL")
       end
 
+      if @table_info.geometry_column
+        properties[esc_i(@table_info.geometry_column)] = "ST_GeomFromText('#{ feature.geometry.as_text }', 4326)"
+      end
+
       update = with_normal_and_geo_selects(SQL::Update.new.table(esc_i(@table_name))).
-        fields(properties.keys + [esc_i(@table_info.geometry_column)]).
-        values(properties.values + ["ST_GeomFromText('#{ feature.geometry.as_text }', 4326)"]).
+        fields(properties.keys).
+        values(properties.values).
         where("#{ esc_i @table_info.id_column } = #{ i_or_quoted_s_for(params[:id], @table_info.id_column) }")
 
       result = @connection.exec(update.to_sql)
@@ -197,7 +205,7 @@ module RestfulGeof
     private
 
     def esc_i identifier
-      @connection.escape_identifier(identifier)
+      @connection.escape_identifier(identifier) if identifier
     end
 
     def esc_s string

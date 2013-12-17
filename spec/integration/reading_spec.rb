@@ -28,6 +28,14 @@ module RestfulGeof
         })
       end
 
+      it "should handle non-spatial records" do
+        get "/restful_geof_test/non_spatial/1"
+        last_response.body.should match_json_expression({
+          "type" => "Feature", "properties" => { "id" => 1, "name" => "first" }
+        })
+        JSON.parse(last_response.body).keys.include?("geometry").should be_false
+      end
+
       context "when ID does not exist" do
 
         before :each do
