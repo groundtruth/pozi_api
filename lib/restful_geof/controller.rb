@@ -1,6 +1,6 @@
 require "uri"
 
-require "ruby/object"
+require "patches/ruby/object"
 require "restful_geof/routes"
 require "restful_geof/store"
 

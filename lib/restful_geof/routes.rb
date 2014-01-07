@@ -1,6 +1,6 @@
 require "uri"
 
-require "ruby/object"
+require "patches/ruby/object"
 
 module RestfulGeof
   class Routes
