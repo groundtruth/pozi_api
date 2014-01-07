@@ -1,3 +1,5 @@
+# encoding: UTF-8
+
 require "spec_helper"
 require "json_expressions/rspec"
 
@@ -67,7 +69,18 @@ module RestfulGeof
         new_id = JSON.parse(last_response.body)["properties"]["id"]
         get "/restful_geof_test/non_spatial/#{new_id}"
         last_response.body.should match_json_expression({
-          "type" => "Feature", "properties" => { "id" => new_id, "name" => "new non-spatial record" },
+          "type" => "Feature", "properties" => { "id" => new_id, "name" => "new non-spatial record" }
+        })
+      end
+
+      it "should handle wierd characters" do
+        post "/restful_geof_test/strange_string_table", {
+          "type" => "Feature", "properties" => { "str" => "––" }
+        }.to_json
+        new_id = JSON.parse(last_response.body)["properties"]["id"]
+        get "/restful_geof_test/strange_string_table/#{new_id}"
+        last_response.body.should match_json_expression({
+          "type" => "Feature", "properties" => { "id" => new_id, "str" => "––" }
         })
       end
 
