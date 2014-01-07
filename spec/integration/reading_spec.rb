@@ -1,3 +1,5 @@
+# encoding: UTF-8
+
 require "spec_helper"
 require "json_expressions/rspec"
 
@@ -21,11 +23,18 @@ module RestfulGeof
         last_response.body.should match_json_expression({
           "type" => "Feature", "properties" => { "id" => 2, "name" => "second" },
           "geometry" => {
-            "type" => "Point", 
+            "type" => "Point",
             "crs"=> { "type"=>"name", "properties"=> { "name" => "EPSG:4326" } },
             "coordinates" => [around(141.584379916592), around(-36.3419002991608)]
           }
         })
+      end
+
+      it "should be able to read strange characters" do
+        get "/restful_geof_test/strange_string_table/1"
+        last_response.body.should match_json_expression({
+          "properties" => { "id" => 1, "str" => "–" }
+        }.ignore_extra_keys!)
       end
 
       it "should handle non-spatial records" do

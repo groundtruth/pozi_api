@@ -82,6 +82,19 @@ ALTER TABLE ONLY non_spatial ALTER COLUMN id SET DEFAULT nextval('non_spatial_id
 INSERT INTO non_spatial (name) VALUES ('first');
 INSERT INTO non_spatial (name) VALUES ('second');
 
+-- unusual characters
+
+CREATE TABLE strange_string_table (
+    id integer NOT NULL,
+    str varchar
+);
+
+CREATE SEQUENCE strange_string_table_id_seq START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE CACHE 1;
+ALTER SEQUENCE strange_string_table_id_seq OWNED BY strange_string_table.id;
+ALTER TABLE ONLY strange_string_table ALTER COLUMN id SET DEFAULT nextval('strange_string_table_id_seq'::regclass);
+
+INSERT INTO strange_string_table (str) VALUES ('–');
+
 -- LIKE search
 
 CREATE TABLE string_table (
