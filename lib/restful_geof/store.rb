@@ -1,6 +1,7 @@
 require "ostruct"
 require "pg"
 require "pg_typecast"
+require "patches/pg_typecast/pg_result"
 require "json"
 
 require "rgeo"
