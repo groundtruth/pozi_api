@@ -74,6 +74,12 @@ These defaults can be overridden by setting the following environment variables:
     RESTFUL_GEOF_PG_USERNAME
     RESTFUL_GEOF_PG_PASSWORD
 
+### Other configuration
+
+Can be set with the following variables
+
+    RESTFUL_GEOF_OPEN_CORS   # no CORS restrictions if set 'true'
+
 ### Webserver
 
 RestfulGeof is a rack app and can be served in various ways. One option is to
