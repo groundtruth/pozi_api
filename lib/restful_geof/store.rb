@@ -166,10 +166,7 @@ module RestfulGeof
 
       if ordering_point
         query.order_by <<-END_CONDITION
-          ST_Distance(
-            ST_Transform(#{@table_info.geometry_column}, 4326),
-            ST_GeomFromText('POINT(#{ Float(ordering_point[:lon]) } #{ Float(ordering_point[:lat]) })', 4326)
-          )
+          #{@table_info.geometry_column} <-> ST_Transform(ST_GeomFromText('POINT(#{ Float(ordering_point[:lon]) } #{ Float(ordering_point[:lat]) })', 4326),#{@table_info.geometry_srid})
         END_CONDITION
       end
 
